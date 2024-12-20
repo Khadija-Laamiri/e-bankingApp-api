@@ -1,4 +1,4 @@
-// src/main/java/org/example/securityuserservice/service/UserService.java
+
 package com.bankati.userservice.service;
 
 import jakarta.annotation.PostConstruct;
@@ -29,7 +29,7 @@ public class UserService {
     @Autowired
     private EmailService emailService;
 
-    private final String uploadDir = "C:/Users/User/Desktop/PROJ-2/Api/security-user-service/src/main/resources/uploads/";
+    private final String uploadDir = "C:/Users/User/Desktop/PROJ-2-V2/e-bankingApp-api/user-service/src/main/resources/uploads/";
     @PostConstruct
     public void init() {
         File dir = new File(uploadDir);
@@ -158,7 +158,10 @@ public class UserService {
 
         return password.toString();
     }
-
+    // Méthode pour calculer le nombre total d'utilisateurs selon le rôle
+    public long getTotalUsersByRole(Role role) {
+        return userRepository.countByRole(role);
+    }
 
 
 }

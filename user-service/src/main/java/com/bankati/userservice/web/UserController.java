@@ -2,6 +2,7 @@
 package com.bankati.userservice.web;
 
 import com.bankati.userservice.entities.User;
+import com.bankati.userservice.enums.Role;
 import com.bankati.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -97,4 +98,9 @@ public class UserController {
         User updatedUser = userService.toggleUserActiveStatus(id);
         return ResponseEntity.ok(updatedUser);
     }
+    @GetMapping("/count/{role}")
+    public long getTotalUsersByRole(@PathVariable Role role) {
+        return userService.getTotalUsersByRole(role);
+    }
+
 }
