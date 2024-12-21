@@ -177,14 +177,14 @@ public List<Transaction> listerTransactionsParUserId(Long userId) {
         System.out.println("Client trouvé : " + client.get("nom") + " " + client.get("prenom"));
     }
     public BigDecimal calculerSoldeParUserId(Long userId) {
-        // Récupérer toutes les transactions de l'utilisateur
-        List<Transaction> transactions = transactionRepo.findBySourceUserIdOrDestinationUserId(userId, userId);
+        // Récupérer le compte lié à cet utilisateur
+        Compte compte = compteRepo.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Compte non trouvé pour l'utilisateur ID : " + userId));
 
-        // Calculer le solde total
-        return transactions.stream()
-                .map(Transaction::getMontant)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // Retourner directement le solde du compte
+        return compte.getSolde();
     }
+
 
     public BigDecimal ajouterMontantAuSolde(Long userId, BigDecimal montant) {
         if (montant.compareTo(BigDecimal.ZERO) <= 0) {
@@ -199,6 +199,5 @@ public List<Transaction> listerTransactionsParUserId(Long userId) {
 
         return compte.getSolde();
     }
-
 
 }

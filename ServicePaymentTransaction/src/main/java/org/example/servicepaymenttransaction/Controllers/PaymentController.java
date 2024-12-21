@@ -49,10 +49,10 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.transfererArgent(sourceId, destinationId, montant));
     }
 
-    @GetMapping("/{compteId}/solde")
-    public ResponseEntity<BigDecimal> consulterSolde(@PathVariable Long compteId) {
-        return ResponseEntity.ok(paymentService.consulterSolde(compteId));
-    }
+//    @GetMapping("/{compteId}/solde")
+//    public ResponseEntity<BigDecimal> consulterSolde(@PathVariable Long compteId) {
+//        return ResponseEntity.ok(paymentService.consulterSolde(compteId));
+//    }
 
 //    @GetMapping("/{compteId}/transactions")
 //    public ResponseEntity<List<Transaction>> listerTransactions(@PathVariable Long compteId) {
@@ -96,6 +96,7 @@ public class PaymentController {
         BigDecimal nouveauSolde = paymentService.ajouterMontantAuSolde(userId, montant);
         return ResponseEntity.ok(nouveauSolde);
     }
+
 
 
 }
