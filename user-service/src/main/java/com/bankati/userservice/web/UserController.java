@@ -173,6 +173,12 @@ public class UserController {
         List<Transaction> transactions = userService.getTransactionsByUserId(userId);
         return ResponseEntity.ok(transactions);
     }
+
+    @PostMapping("/{userId}/ajouter-solde")
+    public ResponseEntity<BigDecimal> ajouterSolde(@PathVariable Long userId, @RequestParam BigDecimal montant) {
+        BigDecimal nouveauSolde = userService.ajouterSolde(userId, montant);
+        return ResponseEntity.ok(nouveauSolde);
+    }
 }
 
 
