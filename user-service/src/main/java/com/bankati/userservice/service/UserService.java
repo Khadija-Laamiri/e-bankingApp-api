@@ -310,4 +310,8 @@ public class UserService {
         return paymentFeignClient.listerTransactionsParUserId(userId);
     }
 
+    public BigDecimal ajouterSolde(Long userId, BigDecimal montant) {
+        return paymentFeignClient.ajouterMontantAuSolde(userId, montant).getBody();
+    }
+
 }

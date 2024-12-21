@@ -30,5 +30,9 @@ public interface PaymentServiceFeignClient {
 
     @GetMapping("/comptes/{compteId}/solde")
     ResponseEntity<BigDecimal> consulterSolde(@PathVariable("compteId") Long compteId);
+
+    @PostMapping("/paiements/user/{userId}/ajouter-solde")
+    ResponseEntity<BigDecimal> ajouterMontantAuSolde(@PathVariable("userId") Long userId,
+                                                     @RequestParam BigDecimal montant);
 }
 
