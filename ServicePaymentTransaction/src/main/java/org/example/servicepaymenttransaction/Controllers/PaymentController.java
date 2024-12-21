@@ -76,6 +76,7 @@ public class PaymentController {
         error.put("error", ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
     // Endpoint pour vérifier un client par son ID
     @GetMapping("/clients/{id}")
     public ResponseEntity<Map<String, Object>> verifierClient(@PathVariable Long id) {

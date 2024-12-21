@@ -1,8 +1,11 @@
 
 package com.bankati.userservice.service;
 
-import com.bankati.userservice.FeignCompte.Compte;
-import com.bankati.userservice.FeignCompte.CompteClient;
+import com.bankati.userservice.FeignCompte.PaymentServiceFeignClient;
+
+import com.bankati.userservice.Models.Compte;
+
+import com.bankati.userservice.Models.Transaction;
 import jakarta.annotation.PostConstruct;
 import com.bankati.userservice.entities.User;
 import com.bankati.userservice.enums.Role;
@@ -15,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -36,7 +38,10 @@ public class UserService {
     @Autowired
     private EmailService emailService;
     @Autowired
-    private CompteClient compteClient;
+    private PaymentServiceFeignClient compteClient;
+
+    @Autowired
+    private PaymentServiceFeignClient paymentFeignClient;
 
     // Déclarer le chemin d'upload comme un Path dynamique
     private final Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads");
@@ -288,9 +293,6 @@ public class UserService {
 
         return savedUser;
     }
-
-
-
     // Récupérer les clients pour un agent spécifique
     public List<User> getClientsByAgent(Long agentId) {
         // Vérifier si l'agent existe
@@ -299,6 +301,13 @@ public class UserService {
 
         // Retourner les clients associés à cet agent
         return userRepository.findByAgent(agent);
+    }
+
+
+
+
+    public List<Transaction> getTransactionsByUserId(Long userId) {
+        return paymentFeignClient.listerTransactionsParUserId(userId);
     }
 
 }
