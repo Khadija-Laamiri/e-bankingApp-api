@@ -1,5 +1,6 @@
 package org.example.servicepaymenttransaction.Controllers;
 
+import org.example.servicepaymenttransaction.Feign.UserServiceClient;
 import org.example.servicepaymenttransaction.Models.Transaction;
 import org.example.servicepaymenttransaction.Services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private UserServiceClient userServiceClient;
 
     @PostMapping("/{compteId}/payer-facture/{creancierId}")
     public ResponseEntity<Transaction> payerFacture(@PathVariable Long compteId,
@@ -71,6 +75,25 @@ public class PaymentController {
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+    // Endpoint pour vérifier un client par son ID
+    @GetMapping("/clients/{id}")
+    public ResponseEntity<Map<String, Object>> verifierClient(@PathVariable Long id) {
+        Map<String, Object> client = userServiceClient.getClientById(id);
+        if (client == null || client.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(client);
+    }
+    @GetMapping("/solde/user/{userId}")
+    public ResponseEntity<BigDecimal> consulterSoldeParUserId(@PathVariable Long userId) {
+        BigDecimal solde = paymentService.calculerSoldeParUserId(userId);
+        return ResponseEntity.ok(solde);
+    }
+    @PostMapping("/user/{userId}/ajouter-solde")
+    public ResponseEntity<BigDecimal> ajouterMontantAuSolde(@PathVariable Long userId, @RequestParam BigDecimal montant) {
+        BigDecimal nouveauSolde = paymentService.ajouterMontantAuSolde(userId, montant);
+        return ResponseEntity.ok(nouveauSolde);
     }
 
 
