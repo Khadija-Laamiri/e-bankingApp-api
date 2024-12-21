@@ -50,10 +50,20 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.consulterSolde(compteId));
     }
 
-    @GetMapping("/{compteId}/transactions")
-    public ResponseEntity<List<Transaction>> listerTransactions(@PathVariable Long compteId) {
-        return ResponseEntity.ok(paymentService.listerTransactions(compteId));
+//    @GetMapping("/{compteId}/transactions")
+//    public ResponseEntity<List<Transaction>> listerTransactions(@PathVariable Long compteId) {
+//        return ResponseEntity.ok(paymentService.listerTransactions(compteId));
+//    }
+// Endpoint pour lister les transactions par ID utilisateur
+
+    // Endpoint pour lister les transactions par ID utilisateur
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
+        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
+        return ResponseEntity.ok(transactions);
     }
+
+
     // Gestion globale des exceptions pour afficher un message clair
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<
