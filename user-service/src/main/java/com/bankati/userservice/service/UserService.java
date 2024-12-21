@@ -1,12 +1,15 @@
-// src/main/java/org/example/securityuserservice/service/UserService.java
+
 package com.bankati.userservice.service;
 
+import com.bankati.userservice.FeignCompte.Compte;
+import com.bankati.userservice.FeignCompte.CompteClient;
 import jakarta.annotation.PostConstruct;
 import com.bankati.userservice.entities.User;
 import com.bankati.userservice.enums.Role;
 import com.bankati.userservice.enums.TypePieceIdentite;
 import com.bankati.userservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.List;
@@ -28,13 +35,21 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private CompteClient compteClient;
 
-    private final String uploadDir = "C:/Users/User/Desktop/PROJ-2/Api/security-user-service/src/main/resources/uploads/";
+    // Déclarer le chemin d'upload comme un Path dynamique
+    private final Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads");
+
+    // Méthode init pour créer le dossier si nécessaire
     @PostConstruct
     public void init() {
-        File dir = new File(uploadDir);
-        if (!dir.exists()) {
-            dir.mkdirs();
+        try {
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create upload directory", e);
         }
     }
     //Agent
@@ -73,18 +88,19 @@ public class UserService {
         // Sauvegarder l'image recto avec un nom unique
         if (imageRecto != null && !imageRecto.isEmpty()) {
             String uniqueRectoName = System.currentTimeMillis() + "_" + imageRecto.getOriginalFilename();
-            String rectoPath = uploadDir + uniqueRectoName;
-            imageRecto.transferTo(new File(rectoPath));
-            user.setImageRecto(rectoPath);
+            Path rectoPath = uploadDir.resolve(uniqueRectoName);
+            imageRecto.transferTo(rectoPath.toFile());
+            user.setImageRecto("/uploads/" + uniqueRectoName);
         }
 
-        // Sauvegarder l'image verso avec un nom unique
+          // Sauvegarder l'image verso avec un nom unique
         if (imageVerso != null && !imageVerso.isEmpty()) {
             String uniqueVersoName = System.currentTimeMillis() + "_" + imageVerso.getOriginalFilename();
-            String versoPath = uploadDir + uniqueVersoName;
-            imageVerso.transferTo(new File(versoPath));
-            user.setImageVerso(versoPath);
+            Path versoPath = uploadDir.resolve(uniqueVersoName);
+            imageVerso.transferTo(versoPath.toFile());
+            user.setImageVerso("/uploads/" + uniqueVersoName);
         }
+
 
         // Enregistrer l'utilisateur
         User savedUser = userRepository.save(user);
@@ -158,7 +174,131 @@ public class UserService {
 
         return password.toString();
     }
+    // Méthode pour calculer le nombre total d'utilisateurs selon le rôle
+    public long getTotalUsersByRole(Role role) {
+        return userRepository.countByRole(role);
+    }
+
+    /////////////////////client start ////////////////////////
+    // Récupérer tous les clients
+    public List<User> getAllClients() {
+        return userRepository.findByRole(Role.CLIENT);
+    }
+
+    // Récupérer un client par son ID
+    public User getClientById(Long id) {
+        return userRepository.findByIdAndRole(id, Role.CLIENT).orElse(null);
+    }
+    // Mettre à jour un client
+    public User updateClient(Long id, String nom, String prenom, String typePieceIdentite, String numeroPieceIdentite,
+                             LocalDate dateDeNaissance, String adresse, String email, String numeroTelephone) throws IOException {
+
+        // Récupérer le client existant
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Client non trouvé avec l'ID : " + id));
+
+        // Mettre à jour les champs
+        existingUser.setNom(nom);
+        existingUser.setPrenom(prenom);
+        existingUser.setTypePieceIdentite(TypePieceIdentite.valueOf(typePieceIdentite));
+        existingUser.setNumeroPieceIdentite(numeroPieceIdentite);
+        existingUser.setDateDeNaissance(dateDeNaissance);
+        existingUser.setAdresse(adresse);
+        existingUser.setEmail(email);
+        existingUser.setNumeroTelephone(numeroTelephone);
+
+        return userRepository.save(existingUser);
+    }
+
+    // Bascule du statut actif/inactif d’un client
+    @Transactional
+    public User toggleClientActiveStatus(Long id) {
+        User user = userRepository.findByIdAndRole(id, Role.CLIENT)
+                .orElseThrow(() -> new IllegalArgumentException("Client non trouvé avec l'ID : " + id));
+
+        user.setActive(!user.isActive());
+
+        return userRepository.save(user);
+    }
+
+    public User addClient(String nom,
+                          String prenom,
+                          String typePieceIdentite,
+                          String numeroPieceIdentite,
+                          LocalDate dateDeNaissance,
+                          String adresse,
+                          String email,
+                          String numeroTelephone,
+                          MultipartFile imageRecto,
+                          MultipartFile imageVerso,
+                          Long agentId,
+                          BigDecimal soldeInitial) throws IOException {
+
+        // Trouver l'agent qui ajoute ce client
+        User agent = userRepository.findById(agentId)
+                .orElseThrow(() -> new IllegalArgumentException("Agent not found with ID: " + agentId));
+
+        // Générer un mot de passe aléatoire
+        String generatedPassword = generateRandomPassword(8);
+
+        // Créer une instance de l'utilisateur (client)
+        User user = new User();
+        user.setNom(nom);
+        user.setPrenom(prenom);
+        user.setTypePieceIdentite(Enum.valueOf(TypePieceIdentite.class, typePieceIdentite));
+        user.setNumeroPieceIdentite(numeroPieceIdentite);
+        user.setDateDeNaissance(dateDeNaissance);
+        user.setAdresse(adresse);
+        user.setEmail(email);
+        user.setNumeroTelephone(numeroTelephone);
+        user.setPassword(passwordEncoder.encode(generatedPassword));
+        user.setRole(Role.CLIENT);
+
+        // Assigner l'agent
+        user.setAgent(agent);
+
+        // Sauvegarder l'image recto avec un nom unique
+        if (imageRecto != null && !imageRecto.isEmpty()) {
+            String uniqueRectoName = System.currentTimeMillis() + "_" + imageRecto.getOriginalFilename();
+            Path rectoPath = uploadDir.resolve(uniqueRectoName);
+            imageRecto.transferTo(rectoPath.toFile());
+            user.setImageRecto("/uploads/" + uniqueRectoName);
+        }
+
+        // Sauvegarder l'image verso avec un nom unique
+        if (imageVerso != null && !imageVerso.isEmpty()) {
+            String uniqueVersoName = System.currentTimeMillis() + "_" + imageVerso.getOriginalFilename();
+            Path versoPath = uploadDir.resolve(uniqueVersoName);
+            imageVerso.transferTo(versoPath.toFile());
+            user.setImageVerso("/uploads/" + uniqueVersoName);
+        }
+
+        // Enregistrer le client
+        User savedUser = userRepository.save(user);
+
+        // Appeler le service de paiement pour créer un compte pour ce client
+        try {
+            ResponseEntity<Compte> response = compteClient.creerCompte(savedUser.getId(), soldeInitial);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("Compte créé avec succès pour le client ID: " + savedUser.getId());
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la création du compte pour le client ID: " + savedUser.getId());
+        }
+
+        return savedUser;
+    }
 
 
+
+    // Récupérer les clients pour un agent spécifique
+    public List<User> getClientsByAgent(Long agentId) {
+        // Vérifier si l'agent existe
+        User agent = userRepository.findByIdAndRole(agentId, Role.AGENT)
+                .orElseThrow(() -> new IllegalArgumentException("Agent not found with ID: " + agentId));
+
+        // Retourner les clients associés à cet agent
+        return userRepository.findByAgent(agent);
+    }
 
 }
