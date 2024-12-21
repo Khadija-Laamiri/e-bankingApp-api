@@ -153,9 +153,13 @@ public class PaymentService {
         return List.of(transactionDebit, transactionCredit);
     }
 
-    public List<Transaction> listerTransactions(Long compteId) {
-        return transactionRepo.findByCompteId(compteId);
-    }
+//    public List<Transaction> listerTransactions(Long compteId) {
+//        return transactionRepo.findByCompteId(compteId);
+//    }
+// Liste des transactions pour un utilisateur spécifique
+public List<Transaction> listerTransactionsParUserId(Long userId) {
+    return transactionRepo.findByCompteUserId(userId);
+}
 
     public BigDecimal consulterSolde(Long compteId) {
         Compte compte = compteRepo.findById(compteId).orElseThrow(() -> new RuntimeException("Compte non trouvé"));
