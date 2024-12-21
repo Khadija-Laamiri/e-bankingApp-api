@@ -103,4 +103,66 @@ public class UserController {
         return userService.getTotalUsersByRole(role);
     }
 
+    //CLIENT START ////////////////////////////////
+    // Endpoint pour ajouter un client
+    @PostMapping("/add-client")
+    public ResponseEntity<User> addClient(
+            @RequestParam String nom,
+            @RequestParam String prenom,
+            @RequestParam String typePieceIdentite,
+            @RequestParam String numeroPieceIdentite,
+            @RequestParam LocalDate dateDeNaissance,
+            @RequestParam String adresse,
+            @RequestParam String email,
+            @RequestParam String numeroTelephone,
+            @RequestParam(required = false) MultipartFile imageRecto,
+            @RequestParam(required = false) MultipartFile imageVerso,
+            @RequestParam Long agentId // Nouvel argument pour identifier l'agent
+    ) throws IOException {
+        User newUser = userService.addClient(nom, prenom, typePieceIdentite, numeroPieceIdentite, dateDeNaissance,
+                adresse, email, numeroTelephone, imageRecto, imageVerso, agentId);
+        return ResponseEntity.ok(newUser);
+    }
+
+
+    // Endpoint pour récupérer tous les clients
+    @GetMapping("/clients")
+    public ResponseEntity<List<User>> getAllClients() {
+        List<User> clients = userService.getAllClients();
+        return ResponseEntity.ok(clients);
+    }
+
+    // Endpoint pour récupérer un client par ID
+    @GetMapping("/client/{id}")
+    public ResponseEntity<User> getClientById(@PathVariable Long id) {
+        User client = userService.getClientById(id);
+        return ResponseEntity.ok(client);
+    }
+
+    // Endpoint pour mettre à jour un client
+    @PutMapping("/update-client/{id}")
+    public ResponseEntity<User> updateClient(
+            @PathVariable Long id,
+            @RequestParam String nom,
+            @RequestParam String prenom,
+            @RequestParam String typePieceIdentite,
+            @RequestParam String numeroPieceIdentite,
+            @RequestParam LocalDate dateDeNaissance,
+            @RequestParam String adresse,
+            @RequestParam String email,
+            @RequestParam String numeroTelephone
+
+    ) throws IOException {
+        User updatedUser = userService.updateClient(id, nom, prenom, typePieceIdentite, numeroPieceIdentite,
+                dateDeNaissance, adresse, email, numeroTelephone );
+        return ResponseEntity.ok(updatedUser);
+    }
+    @GetMapping("/clients-by-agent/{agentId}")
+    public ResponseEntity<List<User>> getClientsByAgent(@PathVariable Long agentId) {
+        List<User> clients = userService.getClientsByAgent(agentId);
+        return ResponseEntity.ok(clients);
+    }
+
 }
+
+
