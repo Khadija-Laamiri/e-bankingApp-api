@@ -1,7 +1,7 @@
 
 package com.bankati.userservice.service;
 
-import com.bankati.userservice.FeignCompte.Compte;
+import com.bankati.userservice.Models.Compte;
 import com.bankati.userservice.FeignCompte.CompteClient;
 import jakarta.annotation.PostConstruct;
 import com.bankati.userservice.entities.User;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -288,9 +287,6 @@ public class UserService {
 
         return savedUser;
     }
-
-
-
     // Récupérer les clients pour un agent spécifique
     public List<User> getClientsByAgent(Long agentId) {
         // Vérifier si l'agent existe
