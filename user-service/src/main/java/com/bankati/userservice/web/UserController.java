@@ -1,7 +1,8 @@
 
 package com.bankati.userservice.web;
 
-import com.bankati.userservice.FeignCompte.CompteClient;
+
+import com.bankati.userservice.Models.Transaction;
 import com.bankati.userservice.entities.User;
 import com.bankati.userservice.enums.Role;
 import com.bankati.userservice.service.UserService;
@@ -167,7 +168,11 @@ public class UserController {
         List<User> clients = userService.getClientsByAgent(agentId);
         return ResponseEntity.ok(clients);
     }
-
+    @GetMapping("/{userId}/transactions")
+    public ResponseEntity<List<Transaction>> getTransactionsByUserId(@PathVariable Long userId) {
+        List<Transaction> transactions = userService.getTransactionsByUserId(userId);
+        return ResponseEntity.ok(transactions);
+    }
 }
 
 
