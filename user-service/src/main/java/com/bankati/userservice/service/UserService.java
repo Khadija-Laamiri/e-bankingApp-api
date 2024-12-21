@@ -1,12 +1,15 @@
 
 package com.bankati.userservice.service;
 
+import com.bankati.userservice.FeignCompte.Compte;
+import com.bankati.userservice.FeignCompte.CompteClient;
 import jakarta.annotation.PostConstruct;
 import com.bankati.userservice.entities.User;
 import com.bankati.userservice.enums.Role;
 import com.bankati.userservice.enums.TypePieceIdentite;
 import com.bankati.userservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,6 +35,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private CompteClient compteClient;
 
     // Déclarer le chemin d'upload comme un Path dynamique
     private final Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads");
@@ -225,7 +231,8 @@ public class UserService {
                           String numeroTelephone,
                           MultipartFile imageRecto,
                           MultipartFile imageVerso,
-                          Long agentId) throws IOException {
+                          Long agentId,
+                          BigDecimal soldeInitial) throws IOException {
 
         // Trouver l'agent qui ajoute ce client
         User agent = userRepository.findById(agentId)
@@ -267,8 +274,21 @@ public class UserService {
         }
 
         // Enregistrer le client
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        // Appeler le service de paiement pour créer un compte pour ce client
+        try {
+            ResponseEntity<Compte> response = compteClient.creerCompte(savedUser.getId(), soldeInitial);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("Compte créé avec succès pour le client ID: " + savedUser.getId());
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la création du compte pour le client ID: " + savedUser.getId());
+        }
+
+        return savedUser;
     }
+
 
 
     // Récupérer les clients pour un agent spécifique

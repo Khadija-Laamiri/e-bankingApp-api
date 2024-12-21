@@ -1,6 +1,7 @@
 
 package com.bankati.userservice.web;
 
+import com.bankati.userservice.FeignCompte.CompteClient;
 import com.bankati.userservice.entities.User;
 import com.bankati.userservice.enums.Role;
 import com.bankati.userservice.service.UserService;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -19,6 +21,7 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
 
     @PostMapping("/add-agent")
     public ResponseEntity<User> addAgent(
@@ -103,7 +106,7 @@ public class UserController {
         return userService.getTotalUsersByRole(role);
     }
 
-    //CLIENT START ////////////////////////////////
+    ///////////////////////////////////////////////CLIENT START ////////////////////////////////
     // Endpoint pour ajouter un client
     @PostMapping("/add-client")
     public ResponseEntity<User> addClient(
@@ -117,12 +120,14 @@ public class UserController {
             @RequestParam String numeroTelephone,
             @RequestParam(required = false) MultipartFile imageRecto,
             @RequestParam(required = false) MultipartFile imageVerso,
-            @RequestParam Long agentId // Nouvel argument pour identifier l'agent
+            @RequestParam Long agentId,
+            @RequestParam BigDecimal soldeInitial // Nouveau paramètre pour le solde initial
     ) throws IOException {
         User newUser = userService.addClient(nom, prenom, typePieceIdentite, numeroPieceIdentite, dateDeNaissance,
-                adresse, email, numeroTelephone, imageRecto, imageVerso, agentId);
+                adresse, email, numeroTelephone, imageRecto, imageVerso, agentId, soldeInitial);
         return ResponseEntity.ok(newUser);
     }
+
 
 
     // Endpoint pour récupérer tous les clients
