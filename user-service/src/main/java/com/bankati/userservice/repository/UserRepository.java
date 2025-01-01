@@ -20,6 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
         boolean existsByIdAndRole(Long id, Role role);
         long countByRole(Role role);
-
+        List<User> findByAgent(User agent);
 
 }

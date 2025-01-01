@@ -1,5 +1,6 @@
 package org.example.servicepaymenttransaction.Services;
 
+import org.example.servicepaymenttransaction.Feign.UserServiceClient;
 import org.example.servicepaymenttransaction.Models.Compte;
 import org.example.servicepaymenttransaction.Models.Transaction;
 import org.example.servicepaymenttransaction.Repositories.CompteRepository;
@@ -22,6 +23,8 @@ public class PaymentService {
     @Autowired
     private TransactionRepository transactionRepo;
 
+    @Autowired
+    private UserServiceClient userServiceClient;
     // Simuler une liste de créanciers
     private static final Map<Long, String> CREANCIERS = new HashMap<>() {{
         put(1L, "Electricité Nationale");
@@ -153,12 +156,48 @@ public class PaymentService {
         return List.of(transactionDebit, transactionCredit);
     }
 
-    public List<Transaction> listerTransactions(Long compteId) {
-        return transactionRepo.findByCompteId(compteId);
-    }
+//    public List<Transaction> listerTransactions(Long compteId) {
+//        return transactionRepo.findByCompteId(compteId);
+//    }
+// Liste des transactions pour un utilisateur spécifique
+public List<Transaction> listerTransactionsParUserId(Long userId) {
+    return transactionRepo.findByCompteUserId(userId);
+}
 
     public BigDecimal consulterSolde(Long compteId) {
         Compte compte = compteRepo.findById(compteId).orElseThrow(() -> new RuntimeException("Compte non trouvé"));
         return compte.getSolde();
     }
+
+    public void verifierClient(Long clientId) {
+        Map<String, Object> client = userServiceClient.getClientById(clientId);
+        if (client == null || client.isEmpty()) {
+            throw new RuntimeException("Client non trouvé pour l'ID : " + clientId);
+        }
+        System.out.println("Client trouvé : " + client.get("nom") + " " + client.get("prenom"));
+    }
+    public BigDecimal calculerSoldeParUserId(Long userId) {
+        // Récupérer le compte lié à cet utilisateur
+        Compte compte = compteRepo.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Compte non trouvé pour l'utilisateur ID : " + userId));
+
+        // Retourner directement le solde du compte
+        return compte.getSolde();
+    }
+
+
+    public BigDecimal ajouterMontantAuSolde(Long userId, BigDecimal montant) {
+        if (montant.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Le montant à ajouter doit être positif.");
+        }
+
+        Compte compte = compteRepo.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Compte non trouvé pour l'utilisateur ID : " + userId));
+
+        compte.setSolde(compte.getSolde().add(montant));
+        compteRepo.save(compte);
+
+        return compte.getSolde();
+    }
+
 }

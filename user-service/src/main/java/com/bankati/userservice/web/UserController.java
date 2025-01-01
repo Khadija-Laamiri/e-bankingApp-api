@@ -1,6 +1,8 @@
 
 package com.bankati.userservice.web;
 
+
+import com.bankati.userservice.Models.Transaction;
 import com.bankati.userservice.entities.User;
 import com.bankati.userservice.enums.Role;
 import com.bankati.userservice.service.UserService;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -19,6 +22,7 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
 
     @PostMapping("/add-agent")
     public ResponseEntity<User> addAgent(
@@ -103,4 +107,78 @@ public class UserController {
         return userService.getTotalUsersByRole(role);
     }
 
+    ///////////////////////////////////////////////CLIENT START ////////////////////////////////
+    // Endpoint pour ajouter un client
+    @PostMapping("/add-client")
+    public ResponseEntity<User> addClient(
+            @RequestParam String nom,
+            @RequestParam String prenom,
+            @RequestParam String typePieceIdentite,
+            @RequestParam String numeroPieceIdentite,
+            @RequestParam LocalDate dateDeNaissance,
+            @RequestParam String adresse,
+            @RequestParam String email,
+            @RequestParam String numeroTelephone,
+            @RequestParam(required = false) MultipartFile imageRecto,
+            @RequestParam(required = false) MultipartFile imageVerso,
+            @RequestParam Long agentId,
+            @RequestParam BigDecimal soldeInitial // Nouveau paramètre pour le solde initial
+    ) throws IOException {
+        User newUser = userService.addClient(nom, prenom, typePieceIdentite, numeroPieceIdentite, dateDeNaissance,
+                adresse, email, numeroTelephone, imageRecto, imageVerso, agentId, soldeInitial);
+        return ResponseEntity.ok(newUser);
+    }
+
+
+
+    // Endpoint pour récupérer tous les clients
+    @GetMapping("/clients")
+    public ResponseEntity<List<User>> getAllClients() {
+        List<User> clients = userService.getAllClients();
+        return ResponseEntity.ok(clients);
+    }
+
+    // Endpoint pour récupérer un client par ID
+    @GetMapping("/client/{id}")
+    public ResponseEntity<User> getClientById(@PathVariable Long id) {
+        User client = userService.getClientById(id);
+        return ResponseEntity.ok(client);
+    }
+
+    // Endpoint pour mettre à jour un client
+    @PutMapping("/update-client/{id}")
+    public ResponseEntity<User> updateClient(
+            @PathVariable Long id,
+            @RequestParam String nom,
+            @RequestParam String prenom,
+            @RequestParam String typePieceIdentite,
+            @RequestParam String numeroPieceIdentite,
+            @RequestParam LocalDate dateDeNaissance,
+            @RequestParam String adresse,
+            @RequestParam String email,
+            @RequestParam String numeroTelephone
+
+    ) throws IOException {
+        User updatedUser = userService.updateClient(id, nom, prenom, typePieceIdentite, numeroPieceIdentite,
+                dateDeNaissance, adresse, email, numeroTelephone );
+        return ResponseEntity.ok(updatedUser);
+    }
+    @GetMapping("/clients-by-agent/{agentId}")
+    public ResponseEntity<List<User>> getClientsByAgent(@PathVariable Long agentId) {
+        List<User> clients = userService.getClientsByAgent(agentId);
+        return ResponseEntity.ok(clients);
+    }
+    @GetMapping("/{userId}/transactions")
+    public ResponseEntity<List<Transaction>> getTransactionsByUserId(@PathVariable Long userId) {
+        List<Transaction> transactions = userService.getTransactionsByUserId(userId);
+        return ResponseEntity.ok(transactions);
+    }
+
+    @PostMapping("/{userId}/ajouter-solde")
+    public ResponseEntity<BigDecimal> ajouterSolde(@PathVariable Long userId, @RequestParam BigDecimal montant) {
+        BigDecimal nouveauSolde = userService.ajouterSolde(userId, montant);
+        return ResponseEntity.ok(nouveauSolde);
+    }
 }
+
+
