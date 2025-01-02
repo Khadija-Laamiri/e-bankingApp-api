@@ -1,12 +1,8 @@
 package org.example.servicepaymenttransaction.Models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-
 
 
 @Entity
@@ -18,6 +14,8 @@ public class Compte {
 
     private Long userId; // ID de l'utilisateur associé au compte
     private BigDecimal solde;
+    @Column(unique = true)
+    private String telephone; // Numéro de téléphone associé au compte
 
     // Getters et Setters
     public Long getId() { return id; }
@@ -28,4 +26,7 @@ public class Compte {
 
     public BigDecimal getSolde() { return solde; }
     public void setSolde(BigDecimal solde) { this.solde = solde; }
+
+    public String getTelephone() { return telephone; }
+    public void setTelephone(String telephone) { this.telephone = telephone; }
 }

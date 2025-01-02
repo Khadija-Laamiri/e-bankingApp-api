@@ -200,4 +200,58 @@ public List<Transaction> listerTransactionsParUserId(Long userId) {
         return compte.getSolde();
     }
 
+
+    public void transfererParTelephone(Long userIdSource, String telephoneDestination, BigDecimal montant) {
+        // Vérifier que le montant est valide
+        if (montant.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Le montant doit être supérieur à 0.");
+        }
+
+        // Récupérer le compte source
+        Compte compteSource = compteRepo.findByUserId(userIdSource)
+                .orElseThrow(() -> new RuntimeException("Compte source non trouvé pour l'utilisateur ID : " + userIdSource));
+
+        // Vérifier que le solde est suffisant
+        if (compteSource.getSolde().compareTo(montant) < 0) {
+            throw new RuntimeException("Solde insuffisant. Solde actuel : " + compteSource.getSolde());
+        }
+
+        // Récupérer le compte destination par numéro de téléphone
+        Compte compteDestination = compteRepo.findByTelephone(telephoneDestination)
+                .orElseThrow(() -> new RuntimeException("Aucun compte trouvé avec ce numéro de téléphone : " + telephoneDestination));
+
+        // Débiter le compte source
+        compteSource.setSolde(compteSource.getSolde().subtract(montant));
+        compteRepo.save(compteSource);
+
+        // Créditer le compte destination
+        compteDestination.setSolde(compteDestination.getSolde().add(montant));
+        compteRepo.save(compteDestination);
+
+        // Créer une transaction pour le débit
+        Transaction transactionDebit = new Transaction();
+        transactionDebit.setMontant(montant.negate());
+        transactionDebit.setType("transfert");
+        transactionDebit.setDescription("Transfert à " + compteDestination.getUserId());
+        transactionDebit.setDate(new Date());
+        transactionDebit.setStatut("effectuée");
+        transactionDebit.setCompte(compteSource);
+        transactionDebit.setSourceUserId(userIdSource);
+        transactionDebit.setDestinationUserId(compteDestination.getUserId());
+        transactionRepo.save(transactionDebit);
+
+        // Créer une transaction pour le crédit
+        Transaction transactionCredit = new Transaction();
+        transactionCredit.setMontant(montant);
+        transactionCredit.setType("reception");
+        transactionCredit.setDescription("Réception de " + compteSource.getUserId());
+        transactionCredit.setDate(new Date());
+        transactionCredit.setStatut("effectuée");
+        transactionCredit.setCompte(compteDestination);
+        transactionCredit.setSourceUserId(userIdSource);
+        transactionCredit.setDestinationUserId(compteDestination.getUserId());
+        transactionRepo.save(transactionCredit);
+    }
+
+
 }

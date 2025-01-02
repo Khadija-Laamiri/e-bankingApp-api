@@ -98,5 +98,18 @@ public class PaymentController {
     }
 
 
+    @PostMapping("/transferer-par-telephone")
+    public ResponseEntity<String> transfererParTelephone(
+            @RequestParam Long userIdSource,
+            @RequestParam String telephoneDestination,
+            @RequestParam BigDecimal montant) {
+        try {
+            paymentService.transfererParTelephone(userIdSource, telephoneDestination, montant);
+            return ResponseEntity.ok("Transfert effectué avec succès.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 }
+
