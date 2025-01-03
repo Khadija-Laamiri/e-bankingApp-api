@@ -239,6 +239,7 @@ public class UserService {
                           Long agentId,
                           BigDecimal soldeInitial) throws IOException {
 
+        //BigDecimal soldeInitial= BigDecimal.valueOf(0.0);
         // Trouver l'agent qui ajoute ce client
         User agent = userRepository.findById(agentId)
                 .orElseThrow(() -> new IllegalArgumentException("Agent not found with ID: " + agentId));
