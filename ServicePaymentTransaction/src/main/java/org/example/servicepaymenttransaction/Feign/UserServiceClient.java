@@ -6,10 +6,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Map;
 
-@FeignClient(name = "user-service", url = "http://localhost:8099/api/users") // Adapte l'URL selon ton infrastructure
+//@FeignClient(name = "user-service", url = "http://localhost:8099/api/users") // Adapte l'URL selon ton infrastructure
+//public interface UserServiceClient {
+//
+//    @GetMapping("/client/{id}")
+//    Map<String, Object> getClientById(@PathVariable("id") Long id);
+//
+//
+//}
+@FeignClient(name = "user-service", url = "http://localhost:8099/api/users", fallback = UserServiceFallback.class)
 public interface UserServiceClient {
-
     @GetMapping("/client/{id}")
     Map<String, Object> getClientById(@PathVariable("id") Long id);
-
 }

@@ -4,6 +4,7 @@ import org.example.servicepaymenttransaction.Feign.UserServiceClient;
 import org.example.servicepaymenttransaction.Models.Transaction;
 import org.example.servicepaymenttransaction.Services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ public class PaymentController {
     @Autowired
     private PaymentService paymentService;
 
+    @Qualifier("org.example.servicepaymenttransaction.Feign.UserServiceClient")
     @Autowired
     private UserServiceClient userServiceClient;
 
@@ -67,6 +69,30 @@ public class PaymentController {
         return ResponseEntity.ok(transactions);
     }
 
+//    @GetMapping("/user/{userId}")
+//    public ResponseEntity<List<Map<String, Object>>> listerTransactionsParUserId(@PathVariable Long userId) {
+//        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
+//        List<Map<String, Object>> transactionsWithUserNames = transactions.stream().map(transaction -> {
+//            Map<String, Object> transactionMap = new HashMap<>();
+//            transactionMap.put("description", transaction.getDescription());
+//            transactionMap.put("montant", transaction.getMontant());
+//            transactionMap.put("date", transaction.getDate());
+//            transactionMap.put("statut", transaction.getStatut());
+//
+//            // Ajouter le nom des utilisateurs source et destination
+//            String sourceUserName = userServiceClient.getClientById(transaction.getSourceUserId()).get("nom").toString();
+//            String destinationUserName = userServiceClient.getClientById(transaction.getDestinationUserId()).get("nom").toString();
+//
+//            transactionMap.put("sourceUserName", sourceUserName);
+//            transactionMap.put("destinationUserName", destinationUserName);
+//
+//            return transactionMap;
+//        }).toList();
+//
+//        return ResponseEntity.ok(transactionsWithUserNames);
+//    }
+
+
 
     // Gestion globale des exceptions pour afficher un message clair
     @ExceptionHandler(RuntimeException.class)
@@ -98,18 +124,46 @@ public class PaymentController {
     }
 
 
-    @PostMapping("/transferer-par-telephone")
-    public ResponseEntity<String> transfererParTelephone(
-            @RequestParam Long userIdSource,
-            @RequestParam String telephoneDestination,
-            @RequestParam BigDecimal montant) {
+//    @PostMapping("/transferer-par-telephone")
+//    public ResponseEntity<String> transfererParTelephone(
+//            @RequestParam Long userIdSource,
+//            @RequestParam String telephoneDestination,
+//            @RequestParam BigDecimal montant) {
+//        try {
+//            paymentService.transfererParTelephone(userIdSource, telephoneDestination, montant);
+//            return ResponseEntity.ok("Transfert effectué avec succès.");
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
+@PostMapping("/transferer-par-telephone")
+public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody Map<String, Object> requestData) {
+    Long userIdSource = Long.valueOf(requestData.get("userIdSource").toString());
+    String telephoneDestination = requestData.get("telephoneDestination").toString();
+    BigDecimal montant = new BigDecimal(requestData.get("montant").toString());
+
+    try {
+        paymentService.transfererParTelephone(userIdSource, telephoneDestination, montant);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Transfert effectué avec succès.");
+        return ResponseEntity.ok(response);
+    } catch (RuntimeException e) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", e.getMessage());
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+}
+
+    @GetMapping("/test-client/{id}")
+    public ResponseEntity<Map<String, Object>> testClient(@PathVariable Long id) {
         try {
-            paymentService.transfererParTelephone(userIdSource, telephoneDestination, montant);
-            return ResponseEntity.ok("Transfert effectué avec succès.");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            Map<String, Object> client = userServiceClient.getClientById(id);
+            return ResponseEntity.ok(client);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
         }
     }
+
 
 }
 
