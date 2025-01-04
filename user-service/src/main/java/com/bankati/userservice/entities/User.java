@@ -44,6 +44,7 @@ public class User {
     private String imageVerso;
 
     private boolean isActive = true;
+    private boolean passwordChanged = false; // Par défaut, non changé
 
     // Relation auto-référencée pour lier les clients à un agent
     @ManyToOne(fetch = FetchType.LAZY)
