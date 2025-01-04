@@ -169,11 +169,14 @@ public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody M
         return ResponseEntity.ok(transactions);
     }
 
+
     @GetMapping("/transactions/{userId}")
     public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
         List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
         return ResponseEntity.ok(transactions);
     }
+
+
 }
 
 

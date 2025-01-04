@@ -308,7 +308,7 @@ public class UserService {
         String message = "Bonjour " + prenom + " " + nom + ",\n\n" +
                 "Votre compte a été créé avec succès.\n" +
                 "Voici vos identifiants de connexion :\n" +
-                "Login : " + email + "\n" +
+                "Login : " + numeroTelephone + "\n" +
                 "Mot de passe : " + generatedPassword + "\n\n" +
                 "Veuillez vous connecter et changer votre mot de passe dès que possible.\n\n" +
                 "Cordialement,\nL'équipe de support.";
@@ -316,7 +316,7 @@ public class UserService {
         emailService.sendEmail(email, subject, message);
 
         // Envoyer le SMS
-//        String smsMessage = "Bonjour " + prenom + ", votre compte a été créé. Login : " + email + ", Mot de passe : " + generatedPassword;
+//        String smsMessage = "Bonjour " + prenom + ", votre compte a été créé. Login : " + numeroTelephone + ", Mot de passe : " + generatedPassword;
 //        String smsResponse = smsController.sendSms(numeroTelephone, smsMessage);
 //        System.out.println("SMS Response: " + smsResponse);
 
