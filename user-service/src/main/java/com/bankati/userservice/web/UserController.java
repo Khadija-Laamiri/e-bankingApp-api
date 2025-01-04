@@ -7,6 +7,7 @@ import com.bankati.userservice.entities.User;
 import com.bankati.userservice.enums.Role;
 import com.bankati.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -179,6 +182,22 @@ public class UserController {
         BigDecimal nouveauSolde = userService.ajouterSolde(userId, montant);
         return ResponseEntity.ok(nouveauSolde);
     }
+
+    @GetMapping("/client/{id}/details")
+    public ResponseEntity<Map<String, Object>> getClientDetailsById(@PathVariable Long id) {
+        User client = userService.getClientById(id);
+        if (client != null) {
+            // Construire une réponse sous forme de Map
+            Map<String, Object> clientDetails = new HashMap<>();
+            clientDetails.put("nom", client.getNom());
+            clientDetails.put("prenom", client.getPrenom());
+            return ResponseEntity.ok(clientDetails);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Client avec l'ID " + id + " non trouvé"));
+        }
+    }
+
 }
 
 

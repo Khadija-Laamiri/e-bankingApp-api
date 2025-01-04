@@ -314,5 +314,6 @@ public class UserService {
     public BigDecimal ajouterSolde(Long userId, BigDecimal montant) {
         return paymentFeignClient.ajouterMontantAuSolde(userId, montant).getBody();
     }
+    
 
 }
