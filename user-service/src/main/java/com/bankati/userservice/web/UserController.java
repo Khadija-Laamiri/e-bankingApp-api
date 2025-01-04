@@ -198,6 +198,30 @@ public class UserController {
         }
     }
 
+
+    @PutMapping("/{id}/update-password")
+    public ResponseEntity<?> updatePassword(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> requestBody) {
+
+        String newPassword = requestBody.get("newPassword");
+
+        if (newPassword == null || newPassword.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Le mot de passe est requis"));
+        }
+
+        try {
+            // Mettre à jour le mot de passe et marquer comme changé
+            userService.updatePassword(id, newPassword);
+            return ResponseEntity.ok(Map.of("message", "Mot de passe mis à jour avec succès"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+
+
+
 }
 
 
