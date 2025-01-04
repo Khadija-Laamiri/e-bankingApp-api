@@ -164,6 +164,12 @@ public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody M
         }
     }
 
+    @GetMapping("/user/current/transactions")
+    public ResponseEntity<List<Transaction>> listerTransactionsUtilisateurConnecte(@RequestHeader("userId") Long userId) {
+        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
+        return ResponseEntity.ok(transactions);
+    }
+
 
 }
 
