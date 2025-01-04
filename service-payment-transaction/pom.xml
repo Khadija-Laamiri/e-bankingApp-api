@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.example</groupId>
-    <artifactId>Service-Payment-Transaction</artifactId>
+    <artifactId>service-payment-transaction</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>ServicePaymentTransaction</name>
+    <name>service-payment-transaction</name>
     <description>ServicePaymentTransaction</description>
     <url/>
     <licenses>
