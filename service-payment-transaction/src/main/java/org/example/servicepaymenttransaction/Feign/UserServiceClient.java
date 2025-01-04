@@ -1,5 +1,6 @@
 package org.example.servicepaymenttransaction.Feign;
 
+import org.example.servicepaymenttransaction.Services.UserServiceFallback;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

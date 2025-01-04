@@ -63,11 +63,11 @@ public class PaymentController {
 // Endpoint pour lister les transactions par ID utilisateur
 
     // Endpoint pour lister les transactions par ID utilisateur
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
-        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
-        return ResponseEntity.ok(transactions);
-    }
+//    @GetMapping("/user/{userId}")
+//    public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
+//        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
+//        return ResponseEntity.ok(transactions);
+//    }
 
 //    @GetMapping("/user/{userId}")
 //    public ResponseEntity<List<Map<String, Object>>> listerTransactionsParUserId(@PathVariable Long userId) {
@@ -163,7 +163,17 @@ public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody M
             return ResponseEntity.status(500).body(null);
         }
     }
+    @GetMapping("/user/current/transactions")
+    public ResponseEntity<List<Transaction>> listerTransactionsUtilisateurConnecte(@RequestHeader("userId") Long userId) {
+        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
+        return ResponseEntity.ok(transactions);
+    }
 
-
+    @GetMapping("/transactions/{userId}")
+    public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
+        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
+        return ResponseEntity.ok(transactions);
+    }
 }
+
 
