@@ -6,6 +6,7 @@ import com.bankati.userservice.FeignCompte.PaymentServiceFeignClient;
 import com.bankati.userservice.Models.Compte;
 
 import com.bankati.userservice.Models.Transaction;
+import com.bankati.userservice.web.SmsController;
 import jakarta.annotation.PostConstruct;
 import com.bankati.userservice.entities.User;
 import com.bankati.userservice.enums.Role;
@@ -42,6 +43,10 @@ public class UserService {
 
     @Autowired
     private PaymentServiceFeignClient paymentFeignClient;
+
+    @Autowired
+    private SmsController smsController;
+
 
     // Déclarer le chemin d'upload comme un Path dynamique
     private final Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads");
@@ -116,7 +121,7 @@ public class UserService {
         String message = "Bonjour " + prenom + " " + nom + ",\n\n" +
                 "Votre compte a été créé avec succès.\n" +
                 "Voici vos identifiants de connexion :\n" +
-                "Email : " + email + "\n" +
+                "Login : " + email + "\n" +
                 "Mot de passe : " + generatedPassword + "\n\n" +
                 "Veuillez vous connecter et changer votre mot de passe dès que possible.\n\n" +
                 "Cordialement,\nL'équipe de support.";
@@ -296,6 +301,24 @@ public class UserService {
         } catch (Exception e) {
             System.err.println("Erreur lors de la création du compte pour le client ID: " + savedUser.getId());
         }
+
+
+        // Envoyer l'email avec le mot de passe généré
+        String subject = "Bienvenue ! Voici vos identifiants de connexion";
+        String message = "Bonjour " + prenom + " " + nom + ",\n\n" +
+                "Votre compte a été créé avec succès.\n" +
+                "Voici vos identifiants de connexion :\n" +
+                "Login : " + email + "\n" +
+                "Mot de passe : " + generatedPassword + "\n\n" +
+                "Veuillez vous connecter et changer votre mot de passe dès que possible.\n\n" +
+                "Cordialement,\nL'équipe de support.";
+
+        emailService.sendEmail(email, subject, message);
+
+        // Envoyer le SMS
+//        String smsMessage = "Bonjour " + prenom + ", votre compte a été créé. Login : " + email + ", Mot de passe : " + generatedPassword;
+//        String smsResponse = smsController.sendSms(numeroTelephone, smsMessage);
+//        System.out.println("SMS Response: " + smsResponse);
 
         return savedUser;
     }
