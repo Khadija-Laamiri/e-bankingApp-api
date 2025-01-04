@@ -6,6 +6,7 @@ import org.example.servicepaymenttransaction.Models.Transaction;
 import org.example.servicepaymenttransaction.Repositories.CompteRepository;
 import org.example.servicepaymenttransaction.Repositories.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ public class PaymentService {
     @Autowired
     private TransactionRepository transactionRepo;
 
+    @Qualifier("org.example.servicepaymenttransaction.Feign.UserServiceClient")
     @Autowired
     private UserServiceClient userServiceClient;
     // Simuler une liste de créanciers
@@ -159,10 +161,53 @@ public class PaymentService {
 //    public List<Transaction> listerTransactions(Long compteId) {
 //        return transactionRepo.findByCompteId(compteId);
 //    }
+
+
 // Liste des transactions pour un utilisateur spécifique
-public List<Transaction> listerTransactionsParUserId(Long userId) {
-    return transactionRepo.findByCompteUserId(userId);
-}
+//public List<Transaction> listerTransactionsParUserId(Long userId) {
+//
+//        return transactionRepo.findByCompteUserId(userId);
+//}
+
+    public List<Transaction> listerTransactionsParUserId(Long userId) {
+        List<Transaction> transactions = transactionRepo.findByCompteUserId(userId);
+        // Trier les transactions par date de manière décroissante (les plus récentes en premier)
+        transactions.sort((t1, t2) -> t2.getDate().compareTo(t1.getDate()));
+
+        transactions.forEach(transaction -> {
+            if ("transfert".equalsIgnoreCase(transaction.getType())) {
+                Long destinationUserId = transaction.getDestinationUserId();
+                Long sourceUserId = transaction.getSourceUserId();
+
+                try {
+                    Map<String, Object> sourceUser = userServiceClient.getClientById(sourceUserId);
+                    Map<String, Object> destinationUser = userServiceClient.getClientById(destinationUserId);
+
+                    String sourceUserName = sourceUser != null ? sourceUser.get("nom") + " " + sourceUser.get("prenom") : "Inconnu";
+                    String destinationUserName = destinationUser != null ? destinationUser.get("nom") + " " + destinationUser.get("prenom") : "Inconnu";
+
+                    transaction.setDescription("Transfert de " + sourceUserName + " à " + destinationUserName);
+                } catch (Exception e) {
+                    System.err.println("Erreur lors de la récupération des noms des utilisateurs : " + e.getMessage());
+                }
+            } else if ("reception".equalsIgnoreCase(transaction.getType())) {
+                Long sourceUserId = transaction.getSourceUserId();
+                try {
+                    Map<String, Object> sourceUser = userServiceClient.getClientById(sourceUserId);
+
+                    String sourceUserName = sourceUser != null ? sourceUser.get("nom") + " " + sourceUser.get("prenom") : "Inconnu";
+                    transaction.setDescription("Réception de " + sourceUserName);
+                } catch (Exception e) {
+                    System.err.println("Erreur lors de la récupération du nom de l'utilisateur source : " + e.getMessage());
+                }
+            }
+        });
+
+        return transactions;
+    }
+
+
+
 
     public BigDecimal consulterSolde(Long compteId) {
         Compte compte = compteRepo.findById(compteId).orElseThrow(() -> new RuntimeException("Compte non trouvé"));
