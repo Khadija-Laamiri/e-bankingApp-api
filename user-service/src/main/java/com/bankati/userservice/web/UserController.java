@@ -124,7 +124,7 @@ public class UserController {
             @RequestParam String numeroTelephone,
             @RequestParam(required = false) MultipartFile imageRecto,
             @RequestParam(required = false) MultipartFile imageVerso,
-            @RequestParam Long agentId
+            @RequestParam Long agentId,
             @RequestParam BigDecimal soldeInitial // Nouveau paramètre pour le solde initial
     ) throws IOException {
         User newUser = userService.addClient(nom, prenom, typePieceIdentite, numeroPieceIdentite, dateDeNaissance,
