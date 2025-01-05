@@ -169,7 +169,5 @@ public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody M
         List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
         return ResponseEntity.ok(transactions);
     }
-
-
 }
 
