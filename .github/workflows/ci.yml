@@ -10,9 +10,9 @@ jobs:
     name: Detect changes
     runs-on: ubuntu-latest
     outputs:
-      payment-transaction-changed: ${{ steps.filter.outputs.payment-transaction }}
-      user-service-changed: ${{ steps.filter.outputs.user-service }}
-      discovery-service-changed: ${{ steps.filter.outputs.discovery-service }}
+      payment-transaction-changed: ${{ steps.filter.outputs.payment-transaction == 'true' }}
+      user-service-changed: ${{ steps.filter.outputs.user-service == 'true' }}
+      discovery-service-changed: ${{ steps.filter.outputs.discovery-service == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -33,12 +33,11 @@ jobs:
     name: Build and Deploy Payment Transaction Service
     runs-on: ubuntu-latest
     needs: filter
-    if: ${{ needs.filter.outputs.payment-transaction-changed == 'true' }}
+    if: needs.filter.outputs.payment-transaction-changed == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Build, test, and deploy steps for payment-transaction-service
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
@@ -79,12 +78,11 @@ jobs:
     name: Build and Deploy User Service
     runs-on: ubuntu-latest
     needs: filter
-    if: ${{ needs.filter.outputs.user-service-changed == 'true' }}
+    if: needs.filter.outputs.user-service-changed == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Build, test, and deploy steps for user-service
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
@@ -125,12 +123,11 @@ jobs:
     name: Build and Deploy Discovery Service
     runs-on: ubuntu-latest
     needs: filter
-    if: ${{ needs.filter.outputs.discovery-service-changed == 'true' }}
+    if: needs.filter.outputs.discovery-service-changed == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Build, test, and deploy steps for discovery-service
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
