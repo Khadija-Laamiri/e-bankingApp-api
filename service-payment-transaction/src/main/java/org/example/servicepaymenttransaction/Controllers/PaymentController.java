@@ -1,7 +1,9 @@
 package org.example.servicepaymenttransaction.Controllers;
 
 import org.example.servicepaymenttransaction.Feign.UserServiceClient;
+import org.example.servicepaymenttransaction.Models.Compte;
 import org.example.servicepaymenttransaction.Models.Transaction;
+import org.example.servicepaymenttransaction.Repositories.CompteRepository;
 import org.example.servicepaymenttransaction.Services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,6 +29,8 @@ public class PaymentController {
     @Autowired
     private UserServiceClient userServiceClient;
 
+    @Autowired
+    private CompteRepository compteRepo;
     @PostMapping("/{compteId}/payer-facture/{creancierId}")
     public ResponseEntity<Transaction> payerFacture(@PathVariable Long compteId,
                                                     @PathVariable Long creancierId,
@@ -174,6 +178,27 @@ public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody M
     public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
         List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
         return ResponseEntity.ok(transactions);
+    }
+
+
+
+    @GetMapping("/user/current/phone")
+    public ResponseEntity<Map<String, String>> getCurrentUserPhone(@RequestHeader("userId") Long userId) {
+        System.out.println("userId reçu : " + userId); // Ajoutez ce log
+        try {
+            Compte compte = compteRepo.findByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("Compte introuvable pour l'utilisateur ID : " + userId));
+
+            System.out.println("Compte trouvé : " + compte); // Ajoutez ce log
+            Map<String, String> response = new HashMap<>();
+            response.put("telephone", compte.getTelephone());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la récupération du téléphone : " + e.getMessage()); // Ajoutez ce log
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 
 
