@@ -6,6 +6,7 @@ import com.bankati.userservice.FeignCompte.PaymentServiceFeignClient;
 import com.bankati.userservice.Models.Compte;
 
 import com.bankati.userservice.Models.Transaction;
+import com.bankati.userservice.entities.Agence;
 import com.bankati.userservice.web.SmsController;
 import jakarta.annotation.PostConstruct;
 import com.bankati.userservice.entities.User;
@@ -27,6 +28,7 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -46,6 +48,8 @@ public class UserService {
 
     @Autowired
     private SmsController smsController;
+    @Autowired
+    private AgenceService agenceService;
 
 
     // Déclarer le chemin d'upload comme un Path dynamique
@@ -74,9 +78,13 @@ public class UserService {
                          String numeroTelephone,
                          String numeroImmatriculation,
                          String numeroPatente,
-
                          MultipartFile imageRecto,
-                         MultipartFile imageVerso) throws IOException {
+                         MultipartFile imageVerso,
+                          Long agenceId) throws IOException {
+
+
+        Agence agence = agenceService.getAgenceById(agenceId)
+                .orElseThrow(() -> new IllegalArgumentException("Agence not found with ID: " + agenceId));
 
         // Générer un mot de passe aléatoire
         String generatedPassword = generateRandomPassword(8);
@@ -95,6 +103,7 @@ public class UserService {
         user.setNumeroPatente(numeroPatente);
         user.setPassword(passwordEncoder.encode(generatedPassword));
         user.setRole(Role.AGENT);
+        user.setAgence(agence);
 
         // Sauvegarder l'image recto avec un nom unique
         if (imageRecto != null && !imageRecto.isEmpty()) {
@@ -253,6 +262,9 @@ public class UserService {
         // Trouver l'agent qui ajoute ce client
         User agent = userRepository.findById(agentId)
                 .orElseThrow(() -> new IllegalArgumentException("Agent not found with ID: " + agentId));
+        // Trouver l'agence associée à l'agent via agentId
+        Agence agence =getAgenceByAgentId(agentId)
+                .orElseThrow(() -> new IllegalArgumentException("No agency found for the specified agent."));
 
         // Générer un mot de passe aléatoire
         String generatedPassword = generateRandomPassword(8);
@@ -272,6 +284,9 @@ public class UserService {
 
         // Assigner l'agent
         user.setAgent(agent);
+       
+            user.setAgence(agence);
+
 
         // Sauvegarder l'image recto avec un nom unique
         if (imageRecto != null && !imageRecto.isEmpty()) {
@@ -350,6 +365,25 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setPasswordChanged(true); // Indiquer que le mot de passe a été changé
         userRepository.save(user);
+    }
+
+
+    public Optional<Agence> getAgenceByAgentId(Long agentId) {
+        return userRepository.findAgenceByAgentId(agentId);
+    }
+
+    public Optional<Agence> getAgenceByClientId(Long clientId) {
+        return userRepository.findAgenceByClientId(clientId);
+    }
+
+    // Récupérer les clients par agence
+    public List<User> getClientsByAgence(Long agenceId) {
+        return userRepository.findClientsByAgenceId(agenceId);
+    }
+
+    // Récupérer les agents par agence
+    public List<User> getAgentsByAgence(Long agenceId) {
+        return userRepository.findAgentsByAgenceId(agenceId);
     }
 
 }

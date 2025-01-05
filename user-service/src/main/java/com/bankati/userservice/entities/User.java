@@ -45,7 +45,6 @@ public class User {
 
     private boolean isActive = true;
     private boolean passwordChanged = false; // Par défaut, non changé
-
     // Relation auto-référencée pour lier les clients à un agent
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agent_id")
@@ -53,7 +52,13 @@ public class User {
     private User agent;
 
     @OneToMany(mappedBy = "agent")
-    @JsonManagedReference   
+    @JsonManagedReference
     @JsonIgnore
     private List<User> clients = new ArrayList<>();
+
+    // Relation Many-to-One avec Agence
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agence_id") // Clé étrangère vers l'agence
+    @JsonIgnore
+    private Agence agence;
 }
