@@ -284,7 +284,10 @@ public class UserService {
 
         // Assigner l'agent
         user.setAgent(agent);
-        user.setAgence(agence);
+       
+            user.setAgence(agence);
+
+
         // Sauvegarder l'image recto avec un nom unique
         if (imageRecto != null && !imageRecto.isEmpty()) {
             String uniqueRectoName = System.currentTimeMillis() + "_" + imageRecto.getOriginalFilename();
