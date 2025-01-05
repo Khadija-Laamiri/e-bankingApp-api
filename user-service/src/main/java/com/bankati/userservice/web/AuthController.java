@@ -84,7 +84,8 @@ public class AuthController {
                     "id", user.getId(),
                     "name", user.getNom() + " " + user.getPrenom(),
                     "email", user.getEmail(),
-                    "role", user.getRole()
+                    "role", user.getRole(),
+                    "agenceId", user.getAgence() != null ? user.getAgence().getId() : null
             ));
             response.put("passwordChanged", user.isPasswordChanged());
 

@@ -52,6 +52,11 @@ public class AgenceService {
         return false;
     }
 
+    // Calculer le total des agences
+    public long getTotalAgences() {
+        return agenceRepository.count();
+    }
+
 
 
 }
