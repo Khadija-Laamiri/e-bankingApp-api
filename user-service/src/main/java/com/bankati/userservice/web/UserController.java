@@ -222,6 +222,15 @@ public class UserController {
         }
     }
 
+
+    @GetMapping("/client/{clientId}/agence")
+    public ResponseEntity<Agence> getAgenceByClientId(@PathVariable Long clientId) {
+        return userService.getAgenceByClientId(clientId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
     // Endpoint pour trouver un agent par userId
     @GetMapping("/{id}/agence")
     public ResponseEntity<Agence> getAgenceByAgentId(@PathVariable Long id) {
@@ -229,6 +238,28 @@ public class UserController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    // Récupérer les clients par agence
+    @GetMapping("/agence/{agenceId}/clients")
+    public ResponseEntity<List<User>> getClientsByAgence(@PathVariable Long agenceId) {
+        List<User> clients = userService.getClientsByAgence(agenceId);
+        if (clients.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(clients);
+    }
+
+    // Récupérer les agents par agence
+    @GetMapping("/agence/{agenceId}/agents")
+    public ResponseEntity<List<User>> getAgentsByAgence(@PathVariable Long agenceId) {
+        List<User> agents = userService.getAgentsByAgence(agenceId);
+        if (agents.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(agents);
+    }
+
+
 }
 
 

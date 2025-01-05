@@ -368,4 +368,19 @@ public class UserService {
     public Optional<Agence> getAgenceByAgentId(Long agentId) {
         return userRepository.findAgenceByAgentId(agentId);
     }
+
+    public Optional<Agence> getAgenceByClientId(Long clientId) {
+        return userRepository.findAgenceByClientId(clientId);
+    }
+
+    // Récupérer les clients par agence
+    public List<User> getClientsByAgence(Long agenceId) {
+        return userRepository.findClientsByAgenceId(agenceId);
+    }
+
+    // Récupérer les agents par agence
+    public List<User> getAgentsByAgence(Long agenceId) {
+        return userRepository.findAgentsByAgenceId(agenceId);
+    }
+
 }
