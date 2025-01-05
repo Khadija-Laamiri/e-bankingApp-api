@@ -6,6 +6,8 @@ import com.bankati.userservice.FeignCompte.PaymentServiceFeignClient;
 import com.bankati.userservice.Models.Compte;
 
 import com.bankati.userservice.Models.Transaction;
+import com.bankati.userservice.entities.Agence;
+import com.bankati.userservice.web.SmsController;
 import jakarta.annotation.PostConstruct;
 import com.bankati.userservice.entities.User;
 import com.bankati.userservice.enums.Role;
@@ -26,6 +28,7 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -43,6 +46,12 @@ public class UserService {
     @Autowired
     private PaymentServiceFeignClient paymentFeignClient;
 
+    @Autowired
+    private SmsController smsController;
+    @Autowired
+    private AgenceService agenceService;
+
+
     // Déclarer le chemin d'upload comme un Path dynamique
     private final Path uploadDir = Paths.get(System.getProperty("user.dir"), "uploads");
 
@@ -57,6 +66,7 @@ public class UserService {
             throw new RuntimeException("Failed to create upload directory", e);
         }
     }
+
     //Agent
     public User addAgent(String nom,
                          String prenom,
@@ -68,9 +78,13 @@ public class UserService {
                          String numeroTelephone,
                          String numeroImmatriculation,
                          String numeroPatente,
-
                          MultipartFile imageRecto,
-                         MultipartFile imageVerso) throws IOException {
+                         MultipartFile imageVerso,
+                          Long agenceId) throws IOException {
+
+
+        Agence agence = agenceService.getAgenceById(agenceId)
+                .orElseThrow(() -> new IllegalArgumentException("Agence not found with ID: " + agenceId));
 
         // Générer un mot de passe aléatoire
         String generatedPassword = generateRandomPassword(8);
@@ -89,6 +103,7 @@ public class UserService {
         user.setNumeroPatente(numeroPatente);
         user.setPassword(passwordEncoder.encode(generatedPassword));
         user.setRole(Role.AGENT);
+        user.setAgence(agence);
 
         // Sauvegarder l'image recto avec un nom unique
         if (imageRecto != null && !imageRecto.isEmpty()) {
@@ -98,7 +113,7 @@ public class UserService {
             user.setImageRecto("/uploads/" + uniqueRectoName);
         }
 
-          // Sauvegarder l'image verso avec un nom unique
+        // Sauvegarder l'image verso avec un nom unique
         if (imageVerso != null && !imageVerso.isEmpty()) {
             String uniqueVersoName = System.currentTimeMillis() + "_" + imageVerso.getOriginalFilename();
             Path versoPath = uploadDir.resolve(uniqueVersoName);
@@ -115,7 +130,7 @@ public class UserService {
         String message = "Bonjour " + prenom + " " + nom + ",\n\n" +
                 "Votre compte a été créé avec succès.\n" +
                 "Voici vos identifiants de connexion :\n" +
-                "Email : " + email + "\n" +
+                "Login : " + email + "\n" +
                 "Mot de passe : " + generatedPassword + "\n\n" +
                 "Veuillez vous connecter et changer votre mot de passe dès que possible.\n\n" +
                 "Cordialement,\nL'équipe de support.";
@@ -124,6 +139,7 @@ public class UserService {
 
         return savedUser;
     }
+
     // Récupérer tous les agents
     public List<User> getAllAgents() {
         return userRepository.findByRole(Role.AGENT);
@@ -156,6 +172,7 @@ public class UserService {
         existingUser.setNumeroPatente(numeroPatente);
         return userRepository.save(existingUser);
     }
+
     @Transactional
     public User toggleUserActiveStatus(Long id) {
         User user = userRepository.findById(id)
@@ -179,6 +196,7 @@ public class UserService {
 
         return password.toString();
     }
+
     // Méthode pour calculer le nombre total d'utilisateurs selon le rôle
     public long getTotalUsersByRole(Role role) {
         return userRepository.countByRole(role);
@@ -194,6 +212,7 @@ public class UserService {
     public User getClientById(Long id) {
         return userRepository.findByIdAndRole(id, Role.CLIENT).orElse(null);
     }
+
     // Mettre à jour un client
     public User updateClient(Long id, String nom, String prenom, String typePieceIdentite, String numeroPieceIdentite,
                              LocalDate dateDeNaissance, String adresse, String email, String numeroTelephone) throws IOException {
@@ -243,6 +262,9 @@ public class UserService {
         // Trouver l'agent qui ajoute ce client
         User agent = userRepository.findById(agentId)
                 .orElseThrow(() -> new IllegalArgumentException("Agent not found with ID: " + agentId));
+        // Trouver l'agence associée à l'agent via agentId
+        Agence agence =getAgenceByAgentId(agentId)
+                .orElseThrow(() -> new IllegalArgumentException("No agency found for the specified agent."));
 
         // Générer un mot de passe aléatoire
         String generatedPassword = generateRandomPassword(8);
@@ -262,6 +284,9 @@ public class UserService {
 
         // Assigner l'agent
         user.setAgent(agent);
+       
+            user.setAgence(agence);
+
 
         // Sauvegarder l'image recto avec un nom unique
         if (imageRecto != null && !imageRecto.isEmpty()) {
@@ -292,8 +317,27 @@ public class UserService {
             System.err.println("Erreur lors de la création du compte pour le client ID: " + savedUser.getId());
         }
 
+
+        // Envoyer l'email avec le mot de passe généré
+        String subject = "Bienvenue ! Voici vos identifiants de connexion";
+        String message = "Bonjour " + prenom + " " + nom + ",\n\n" +
+                "Votre compte a été créé avec succès.\n" +
+                "Voici vos identifiants de connexion :\n" +
+                "Login : " + numeroTelephone + "\n" +
+                "Mot de passe : " + generatedPassword + "\n\n" +
+                "Veuillez vous connecter et changer votre mot de passe dès que possible.\n\n" +
+                "Cordialement,\nL'équipe de support.";
+
+        emailService.sendEmail(email, subject, message);
+
+        // Envoyer le SMS
+//        String smsMessage = "Bonjour " + prenom + ", votre compte a été créé. Login : " + numeroTelephone + ", Mot de passe : " + generatedPassword;
+//        String smsResponse = smsController.sendSms(numeroTelephone, smsMessage);
+//        System.out.println("SMS Response: " + smsResponse);
+
         return savedUser;
     }
+
     // Récupérer les clients pour un agent spécifique
     public List<User> getClientsByAgent(Long agentId) {
         // Vérifier si l'agent existe
@@ -305,8 +349,6 @@ public class UserService {
     }
 
 
-
-
     public List<Transaction> getTransactionsByUserId(Long userId) {
         return paymentFeignClient.listerTransactionsParUserId(userId);
     }
@@ -314,6 +356,34 @@ public class UserService {
     public BigDecimal ajouterSolde(Long userId, BigDecimal montant) {
         return paymentFeignClient.ajouterMontantAuSolde(userId, montant).getBody();
     }
-    
+
+    @Transactional
+    public void updatePassword(Long userId, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordChanged(true); // Indiquer que le mot de passe a été changé
+        userRepository.save(user);
+    }
+
+
+    public Optional<Agence> getAgenceByAgentId(Long agentId) {
+        return userRepository.findAgenceByAgentId(agentId);
+    }
+
+    public Optional<Agence> getAgenceByClientId(Long clientId) {
+        return userRepository.findAgenceByClientId(clientId);
+    }
+
+    // Récupérer les clients par agence
+    public List<User> getClientsByAgence(Long agenceId) {
+        return userRepository.findClientsByAgenceId(agenceId);
+    }
+
+    // Récupérer les agents par agence
+    public List<User> getAgentsByAgence(Long agenceId) {
+        return userRepository.findAgentsByAgenceId(agenceId);
+    }
 
 }

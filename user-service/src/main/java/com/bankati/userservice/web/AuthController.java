@@ -38,7 +38,7 @@ public class AuthController {
         this.userRepository = userRepository;
     }
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> authRequest) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> authRequest) {
         String identifier = authRequest.get("identifier");
         String password = authRequest.get("password");
 
@@ -52,42 +52,48 @@ public class AuthController {
         }
 
         if (userOptional.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Utilisateur non trouvé"));
         }
 
         User user = userOptional.get();
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(identifier, password)
-        );
+        try {
+            // Authentifier l'utilisateur
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(identifier, password)
+            );
 
-        String scope = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(" "));
+            String scope = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.joining(" "));
 
-        Instant now = Instant.now();
-        JwtClaimsSet claims = JwtClaimsSet.builder()
-                .subject(identifier)
-                .issuedAt(now)
-                .expiresAt(now.plus(5, ChronoUnit.MINUTES))
-                .claim("scope", scope)
-                .build();
+            Instant now = Instant.now();
+            JwtClaimsSet claims = JwtClaimsSet.builder()
+                    .subject(identifier)
+                    .issuedAt(now)
+                    .expiresAt(now.plus(5, ChronoUnit.MINUTES))
+                    .claim("scope", scope)
+                    .build();
 
-        String token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+            String token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("accessToken", token);
-        response.put("user", Map.of(
-                "id", user.getId(),
-                "name", user.getNom() + " " + user.getPrenom(),
-                "email", user.getEmail(),
-                "role", user.getRole()
-        ));
+            // Réponse
+            Map<String, Object> response = new HashMap<>();
+            response.put("accessToken", token);
+            response.put("user", Map.of(
+                    "id", user.getId(),
+                    "name", user.getNom() + " " + user.getPrenom(),
+                    "email", user.getEmail(),
+                    "role", user.getRole(),
+                    "agenceId", user.getAgence() != null ? user.getAgence().getId() : null
+            ));
+            response.put("passwordChanged", user.isPasswordChanged());
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Mot de passe incorrect"));
+        }
     }
-
-
-
 }
 
