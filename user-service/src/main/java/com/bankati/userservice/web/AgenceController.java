@@ -59,6 +59,10 @@ public class AgenceController {
         }
         return ResponseEntity.notFound().build();
     }
-
+    @GetMapping("/total")
+    public ResponseEntity<Long> getTotalAgences() {
+        long totalAgences = agenceService.getTotalAgences();
+        return ResponseEntity.ok(totalAgences);
+    }
 
 }
