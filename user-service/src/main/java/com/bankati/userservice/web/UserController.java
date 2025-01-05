@@ -3,6 +3,7 @@ package com.bankati.userservice.web;
 
 
 import com.bankati.userservice.Models.Transaction;
+import com.bankati.userservice.entities.Agence;
 import com.bankati.userservice.entities.User;
 import com.bankati.userservice.enums.Role;
 import com.bankati.userservice.service.UserService;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -39,14 +41,14 @@ public class UserController {
             @RequestParam String numeroTelephone,
             @RequestParam String numeroImmatriculation,
             @RequestParam String numeroPatente,
-
+            @RequestParam Long agenceId,
             @RequestParam(required = false) MultipartFile imageRecto,
             @RequestParam(required = false) MultipartFile imageVerso
     ) {
         try {
             LocalDate birthDate = LocalDate.parse(dateDeNaissance);
             User savedUser = userService.addAgent(nom, prenom, typePieceIdentite, numeroPieceIdentite,
-                    birthDate, adresse, email, numeroTelephone, numeroImmatriculation, numeroPatente, imageRecto, imageVerso);
+                    birthDate, adresse, email, numeroTelephone, numeroImmatriculation, numeroPatente, imageRecto, imageVerso,agenceId);
             return ResponseEntity.ok(savedUser);
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
@@ -124,13 +126,14 @@ public class UserController {
             @RequestParam String numeroTelephone,
             @RequestParam(required = false) MultipartFile imageRecto,
             @RequestParam(required = false) MultipartFile imageVerso,
-            @RequestParam Long agentId
+            @RequestParam Long agentId,
             @RequestParam BigDecimal soldeInitial // Nouveau paramètre pour le solde initial
     ) throws IOException {
         User newUser = userService.addClient(nom, prenom, typePieceIdentite, numeroPieceIdentite, dateDeNaissance,
                 adresse, email, numeroTelephone, imageRecto, imageVerso, agentId, soldeInitial);
         return ResponseEntity.ok(newUser);
     }
+
 
 
 
@@ -197,6 +200,65 @@ public class UserController {
                     .body(Map.of("error", "Client avec l'ID " + id + " non trouvé"));
         }
     }
+
+
+    @PutMapping("/{id}/update-password")
+    public ResponseEntity<?> updatePassword(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> requestBody) {
+
+        String newPassword = requestBody.get("newPassword");
+
+        if (newPassword == null || newPassword.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Le mot de passe est requis"));
+        }
+
+        try {
+            // Mettre à jour le mot de passe et marquer comme changé
+            userService.updatePassword(id, newPassword);
+            return ResponseEntity.ok(Map.of("message", "Mot de passe mis à jour avec succès"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+
+    @GetMapping("/client/{clientId}/agence")
+    public ResponseEntity<Agence> getAgenceByClientId(@PathVariable Long clientId) {
+        return userService.getAgenceByClientId(clientId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+    // Endpoint pour trouver un agent par userId
+    @GetMapping("/{id}/agence")
+    public ResponseEntity<Agence> getAgenceByAgentId(@PathVariable Long id) {
+        return userService.getAgenceByAgentId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Récupérer les clients par agence
+    @GetMapping("/agence/{agenceId}/clients")
+    public ResponseEntity<List<User>> getClientsByAgence(@PathVariable Long agenceId) {
+        List<User> clients = userService.getClientsByAgence(agenceId);
+        if (clients.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(clients);
+    }
+
+    // Récupérer les agents par agence
+    @GetMapping("/agence/{agenceId}/agents")
+    public ResponseEntity<List<User>> getAgentsByAgence(@PathVariable Long agenceId) {
+        List<User> agents = userService.getAgentsByAgence(agenceId);
+        if (agents.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(agents);
+    }
+
 
 }
 

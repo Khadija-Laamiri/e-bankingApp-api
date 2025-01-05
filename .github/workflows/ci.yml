@@ -29,7 +29,7 @@ jobs:
             discovery-service:
               - 'discoveryserver/**'
 
-  payment-transaction-service:
+  service-payment-transaction:
     name: Build and Deploy Payment Transaction Service
     runs-on: ubuntu-latest
     needs: filter

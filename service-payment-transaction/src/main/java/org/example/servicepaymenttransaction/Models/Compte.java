@@ -7,11 +7,9 @@ import java.math.BigDecimal;
 
 @Entity
 public class Compte {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long userId; // ID de l'utilisateur associé au compte
     private BigDecimal solde;
     @Column(unique = true)
