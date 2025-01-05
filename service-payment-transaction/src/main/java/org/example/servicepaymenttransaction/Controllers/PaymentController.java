@@ -29,8 +29,6 @@ public class PaymentController {
     @Autowired
     private UserServiceClient userServiceClient;
 
-    @Autowired
-    private CompteRepository compteRepo;
     @PostMapping("/{compteId}/payer-facture/{creancierId}")
     public ResponseEntity<Transaction> payerFacture(@PathVariable Long compteId,
                                                     @PathVariable Long creancierId,
@@ -128,7 +126,7 @@ public class PaymentController {
     }
 
 
-    //    @PostMapping("/transferer-par-telephone")
+//    @PostMapping("/transferer-par-telephone")
 //    public ResponseEntity<String> transfererParTelephone(
 //            @RequestParam Long userIdSource,
 //            @RequestParam String telephoneDestination,
@@ -140,23 +138,23 @@ public class PaymentController {
 //            return ResponseEntity.badRequest().body(e.getMessage());
 //        }
 //    }
-    @PostMapping("/transferer-par-telephone")
-    public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody Map<String, Object> requestData) {
-        Long userIdSource = Long.valueOf(requestData.get("userIdSource").toString());
-        String telephoneDestination = requestData.get("telephoneDestination").toString();
-        BigDecimal montant = new BigDecimal(requestData.get("montant").toString());
+@PostMapping("/transferer-par-telephone")
+public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody Map<String, Object> requestData) {
+    Long userIdSource = Long.valueOf(requestData.get("userIdSource").toString());
+    String telephoneDestination = requestData.get("telephoneDestination").toString();
+    BigDecimal montant = new BigDecimal(requestData.get("montant").toString());
 
-        try {
-            paymentService.transfererParTelephone(userIdSource, telephoneDestination, montant);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Transfert effectué avec succès.");
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(errorResponse);
-        }
+    try {
+        paymentService.transfererParTelephone(userIdSource, telephoneDestination, montant);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Transfert effectué avec succès.");
+        return ResponseEntity.ok(response);
+    } catch (RuntimeException e) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", e.getMessage());
+        return ResponseEntity.badRequest().body(errorResponse);
     }
+}
 
     @GetMapping("/test-client/{id}")
     public ResponseEntity<Map<String, Object>> testClient(@PathVariable Long id) {
@@ -180,7 +178,8 @@ public class PaymentController {
         return ResponseEntity.ok(transactions);
     }
 
-
+    @Autowired
+    private CompteRepository compteRepo;
 
     @GetMapping("/user/current/phone")
     public ResponseEntity<Map<String, String>> getCurrentUserPhone(@RequestHeader("userId") Long userId) {
@@ -203,4 +202,5 @@ public class PaymentController {
 
 
 }
+
 
