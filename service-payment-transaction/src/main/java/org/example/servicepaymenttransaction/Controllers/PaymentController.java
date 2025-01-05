@@ -63,11 +63,11 @@ public class PaymentController {
 // Endpoint pour lister les transactions par ID utilisateur
 
     // Endpoint pour lister les transactions par ID utilisateur
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
-        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
-        return ResponseEntity.ok(transactions);
-    }
+//    @GetMapping("/user/{userId}")
+//    public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
+//        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
+//        return ResponseEntity.ok(transactions);
+//    }
 
 //    @GetMapping("/user/{userId}")
 //    public ResponseEntity<List<Map<String, Object>>> listerTransactionsParUserId(@PathVariable Long userId) {
@@ -124,7 +124,7 @@ public class PaymentController {
     }
 
 
-//    @PostMapping("/transferer-par-telephone")
+    //    @PostMapping("/transferer-par-telephone")
 //    public ResponseEntity<String> transfererParTelephone(
 //            @RequestParam Long userIdSource,
 //            @RequestParam String telephoneDestination,
@@ -136,23 +136,23 @@ public class PaymentController {
 //            return ResponseEntity.badRequest().body(e.getMessage());
 //        }
 //    }
-@PostMapping("/transferer-par-telephone")
-public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody Map<String, Object> requestData) {
-    Long userIdSource = Long.valueOf(requestData.get("userIdSource").toString());
-    String telephoneDestination = requestData.get("telephoneDestination").toString();
-    BigDecimal montant = new BigDecimal(requestData.get("montant").toString());
+    @PostMapping("/transferer-par-telephone")
+    public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody Map<String, Object> requestData) {
+        Long userIdSource = Long.valueOf(requestData.get("userIdSource").toString());
+        String telephoneDestination = requestData.get("telephoneDestination").toString();
+        BigDecimal montant = new BigDecimal(requestData.get("montant").toString());
 
-    try {
-        paymentService.transfererParTelephone(userIdSource, telephoneDestination, montant);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Transfert effectué avec succès.");
-        return ResponseEntity.ok(response);
-    } catch (RuntimeException e) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", e.getMessage());
-        return ResponseEntity.badRequest().body(errorResponse);
+        try {
+            paymentService.transfererParTelephone(userIdSource, telephoneDestination, montant);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Transfert effectué avec succès.");
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
-}
 
     @GetMapping("/test-client/{id}")
     public ResponseEntity<Map<String, Object>> testClient(@PathVariable Long id) {
@@ -163,11 +163,19 @@ public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody M
             return ResponseEntity.status(500).body(null);
         }
     }
-
     @GetMapping("/user/current/transactions")
     public ResponseEntity<List<Transaction>> listerTransactionsUtilisateurConnecte(@RequestHeader("userId") Long userId) {
         List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
         return ResponseEntity.ok(transactions);
     }
+
+
+    @GetMapping("/transactions/{userId}")
+    public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
+        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
+        return ResponseEntity.ok(transactions);
+    }
+
+
 }
 

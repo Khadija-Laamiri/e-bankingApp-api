@@ -1,5 +1,6 @@
-package org.example.servicepaymenttransaction.Feign;
+package org.example.servicepaymenttransaction.Services;
 
+import org.example.servicepaymenttransaction.Feign.UserServiceClient;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
