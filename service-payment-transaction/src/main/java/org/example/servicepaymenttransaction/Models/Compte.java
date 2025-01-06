@@ -15,6 +15,9 @@ public class Compte {
     @Column(unique = true)
     private String telephone; // Numéro de téléphone associé au compte
 
+    @Enumerated(EnumType.STRING) // Stocker les valeurs de l'énumération sous forme de chaîne
+    private Hssab hssab;
+
     // Getters et Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -27,4 +30,7 @@ public class Compte {
 
     public String getTelephone() { return telephone; }
     public void setTelephone(String telephone) { this.telephone = telephone; }
+
+    public Hssab getHssab() { return hssab; }
+    public void setHssab(Hssab hssab) { this.hssab = hssab; }
 }
