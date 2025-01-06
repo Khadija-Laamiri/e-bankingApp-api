@@ -7,15 +7,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="api-gateway" />
-        <module name="user-service" />
+        <module name="facture-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="api-gateway" target="21" />
       <module name="discoveryserver" target="21" />
-      <module name="facture-service" target="17" />
       <module name="securityuserservice" target="21" />
       <module name="service-payment-transaction" target="21" />
+      <module name="user-service" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
