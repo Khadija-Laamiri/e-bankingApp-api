@@ -64,7 +64,7 @@ pipeline {
 
                         // Then clone the repository
                         bat """
-                            git clone https://oauth2:${GITHUB_TOKEN}@github.com/Khadija-Laamiri/e-banking-api-manifest.git
+                            git clone https://${GITHUB_TOKEN}@github.com/Khadija-Laamiri/e-banking-api-manifest.git
                         """
 
                         dir('e-banking-api-manifest') {
