@@ -386,4 +386,31 @@ public class UserService {
         return userRepository.findAgentsByAgenceId(agenceId);
     }
 
+
+
+    public boolean isUserActiveByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé avec l'email : " + email));
+        return user.isActive();
+    }
+
+    @Transactional
+    public User updateAgentAgence(Long agentId, Long newAgenceId) {
+        // Vérifier si l'agent existe
+        User agent = userRepository.findByIdAndRole(agentId, Role.AGENT)
+                .orElseThrow(() -> new IllegalArgumentException("Agent non trouvé avec l'ID : " + agentId));
+
+        // Vérifier si la nouvelle agence existe
+        Agence newAgence = agenceService.getAgenceById(newAgenceId)
+                .orElseThrow(() -> new IllegalArgumentException("Agence non trouvée avec l'ID : " + newAgenceId));
+
+        // Mettre à jour l'agence de l'agent
+        agent.setAgence(newAgence);
+
+        // Sauvegarder les modifications
+        return userRepository.save(agent);
+    }
+
+
+
 }
