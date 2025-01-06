@@ -262,6 +262,14 @@ public class UserController {
         return ResponseEntity.ok(isActive);
     }
 
+    @PutMapping("/agent/{agentId}/update-agence")
+    public ResponseEntity<User> updateAgentAgence(
+            @PathVariable Long agentId,
+            @RequestParam Long newAgenceId) {
+        User updatedAgent = userService.updateAgentAgence(agentId, newAgenceId);
+        return ResponseEntity.ok(updatedAgent);
+    }
+
 
 }
 
