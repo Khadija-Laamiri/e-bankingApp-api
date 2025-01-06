@@ -40,8 +40,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private String cardholder_id;
     private String imageRecto;
     private String imageVerso;
+
+
+
 
     private boolean isActive = true;
     private boolean passwordChanged = false; // Par défaut, non changé
