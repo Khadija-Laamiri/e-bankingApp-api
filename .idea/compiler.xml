@@ -23,7 +23,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="api-gateway" target="21" />
+      <module name="securityuserservice" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
