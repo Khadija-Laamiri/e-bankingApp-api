@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+        maven 'Maven'
+    }
 
      triggers {
           pollSCM('H/2 * * * *')
@@ -19,7 +22,7 @@ pipeline {
             steps {
                 script {
                     dir('facture-service') {
-                        bat "mvn clean install"
+                        bat "mvn clean install -DskipTests"
                     }
                 }
             }
@@ -58,7 +61,7 @@ pipeline {
                     script {
                         withCredentials([string(credentialsId: 'github_manifest', variable: 'GITHUB_TOKEN')]) {
                             bat """
-                                git clone https://oauth2:${GITHUB_TOKEN}@https://github.com/Khadija-Laamiri/e-banking-api-manifest.git
+                                git clone https://oauth2:${GITHUB_TOKEN}@github.com/Khadija-Laamiri/e-banking-api-manifest.git
                             """
 
                             dir('e-banking-api-manifest') {
