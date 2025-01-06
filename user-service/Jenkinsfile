@@ -67,7 +67,7 @@ pipeline {
                             dir('e-banking-api-manifest') {
                                 bat """
                                     echo "Fichier manifest: ${MANIFEST_FILE}"
-                                   powershell "(Get-Content -Path '${MANIFEST_FILE}') -replace 'enamifatimazahrae2001/user.*', 'enamifatimazahrae2001/discovery:${IMAGE_TAG}' | Set-Content -Path '${MANIFEST_FILE}'"
+                                   powershell "(Get-Content -Path '${MANIFEST_FILE}') -replace 'enamifatimazahrae2001/user.*', 'enamifatimazahrae2001/user:${IMAGE_TAG}' | Set-Content -Path '${MANIFEST_FILE}'"
                                     git diff
                                     git add .
                                     git commit -m "Update user service image version to ${IMAGE_TAG}"
