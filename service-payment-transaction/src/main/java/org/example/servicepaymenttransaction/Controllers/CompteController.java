@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/comptes")
 public class CompteController {
-
     @Autowired
     private CompteService compteService;
 
@@ -39,4 +38,5 @@ public class CompteController {
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
+
 }

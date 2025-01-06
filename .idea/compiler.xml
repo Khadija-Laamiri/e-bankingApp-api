@@ -11,6 +11,7 @@
         <module name="discoveryserver" />
         <module name="user-service" />
         <module name="facture-service" />
+        <module name="service-payment-transaction" />
       </profile>
       <profile name="Annotation profile for service-payment-transaction" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -19,7 +20,6 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
-        <module name="service-payment-transaction" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

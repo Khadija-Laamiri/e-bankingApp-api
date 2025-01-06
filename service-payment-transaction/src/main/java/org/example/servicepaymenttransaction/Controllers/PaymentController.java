@@ -119,11 +119,13 @@ public class PaymentController {
         BigDecimal solde = paymentService.calculerSoldeParUserId(userId);
         return ResponseEntity.ok(solde);
     }
+
     @PostMapping("/user/{userId}/ajouter-solde")
     public ResponseEntity<BigDecimal> ajouterMontantAuSolde(@PathVariable Long userId, @RequestParam BigDecimal montant) {
         BigDecimal nouveauSolde = paymentService.ajouterMontantAuSolde(userId, montant);
         return ResponseEntity.ok(nouveauSolde);
     }
+
 
 
 //    @PostMapping("/transferer-par-telephone")
@@ -171,7 +173,6 @@ public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody M
         return ResponseEntity.ok(transactions);
     }
 
-
     @GetMapping("/transactions/{userId}")
     public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
         List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
@@ -199,8 +200,6 @@ public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody M
             return ResponseEntity.badRequest().body(errorResponse);
         }
     }
-
-
 }
 
 
