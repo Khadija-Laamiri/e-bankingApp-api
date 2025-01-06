@@ -1,12 +1,12 @@
 pipeline {
     agent any
     tools {
-        maven 'Maven'
-    }
+            maven 'Maven'
+        }
 
-    triggers {
-        pollSCM('H/2 * * * *')
-    }
+     triggers {
+          pollSCM('H/2 * * * *')
+        }
 
     environment {
         GITHUB_TOKEN = credentials('github_manifest')
@@ -41,8 +41,8 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'enami_dockerhub',
-                                              usernameVariable: 'DOCKERHUB_CREDENTIALS_USR',
-                                              passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW')]) {
+                                                  usernameVariable: 'DOCKERHUB_CREDENTIALS_USR',
+                                                  passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW')]) {
                     echo "Docker Username: ${DOCKERHUB_CREDENTIALS_USR}"
                     writeFile file: 'docker_token.txt', text: "${DOCKERHUB_CREDENTIALS_PSW}"
 
@@ -57,31 +57,26 @@ pipeline {
 
         stage('Update Argo CD Manifest') {
             steps {
-                script {
-                    withCredentials([string(credentialsId: 'github_manifest', variable: 'GITHUB_TOKEN')]) {
-                        // First, remove the directory if it exists
-                        bat "if exist e-banking-api-manifest rmdir /S /Q e-banking-api-manifest"
-
-                        // Then clone the repository
-                        bat """
-                            git clone https://${GITHUB_TOKEN}@github.com/Khadija-Laamiri/e-banking-api-manifest.git
-                        """
-
-                        dir('e-banking-api-manifest') {
+                dir('..') {
+                    script {
+                        withCredentials([string(credentialsId: 'github_manifest', variable: 'GITHUB_TOKEN')]) {
                             bat """
-                                echo "Fichier manifest: ${MANIFEST_FILE}"
-                                powershell "(Get-Content -Path '${MANIFEST_FILE}') -replace 'enamifatimazahrae2001/user.*', 'enamifatimazahrae2001/user:${IMAGE_TAG}' | Set-Content -Path '${MANIFEST_FILE}'"
-                                git config --global user.email "jenkins@example.com"
-                                git config --global user.name "Jenkins"
-                                git diff
-                                git add .
-                                git commit -m "Update user service image version to ${IMAGE_TAG}"
-                                git push origin master
+                                git clone https://oauth2:${GITHUB_TOKEN}@github.com/Khadija-Laamiri/e-banking-front-manifest.git
                             """
-                        }
 
-                        // Clean up after pushing
-                        bat "rmdir /S /Q e-banking-api-manifest"
+                            dir('e-banking-api-manifest') {
+                                bat """
+                                    echo "Fichier manifest: ${MANIFEST_FILE}"
+                                   powershell "(Get-Content -Path '${MANIFEST_FILE}') -replace 'enamifatimazahrae2001/user.*', 'enamifatimazahrae2001/discovery:${IMAGE_TAG}' | Set-Content -Path '${MANIFEST_FILE}'"
+                                    git diff
+                                    git add .
+                                    git commit -m "Update user service image version to ${IMAGE_TAG}"
+                                    git push origin master
+                                """
+                            }
+
+                            bat "rmdir /S /Q e-banking-api-manifest"
+                        }
                     }
                 }
             }
