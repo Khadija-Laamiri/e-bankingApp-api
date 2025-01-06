@@ -134,9 +134,6 @@ public class UserController {
         return ResponseEntity.ok(newUser);
     }
 
-
-
-
     // Endpoint pour récupérer tous les clients
     @GetMapping("/clients")
     public ResponseEntity<List<User>> getAllClients() {
@@ -256,6 +253,24 @@ public class UserController {
         }
         return ResponseEntity.ok(agents);
     }
+
+
+
+    @GetMapping("/email/{email}/isActive")
+    public ResponseEntity<Boolean> checkUserActiveByEmail(@PathVariable String email) {
+        boolean isActive = userService.isUserActiveByEmail(email);
+        return ResponseEntity.ok(isActive);
+    }
+
+    @PutMapping("/agent/{agentId}/update-agence")
+    public ResponseEntity<User> updateAgentAgence(
+            @PathVariable Long agentId,
+            @RequestParam Long newAgenceId) {
+        User updatedAgent = userService.updateAgentAgence(agentId, newAgenceId);
+        return ResponseEntity.ok(updatedAgent);
+    }
+
+
 }
 
 
