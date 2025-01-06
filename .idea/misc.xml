@@ -12,6 +12,7 @@
         <option value="$PROJECT_DIR$/service-payment-transaction/pom.xml" />
         <option value="$PROJECT_DIR$/../facture-service/pom.xml" />
         <option value="$PROJECT_DIR$/facture-service/pom.xml" />
+        <option value="$PROJECT_DIR$/../operators-api/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

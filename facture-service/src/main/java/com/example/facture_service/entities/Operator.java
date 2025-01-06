@@ -16,7 +16,7 @@ public class Operator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private double sold;
     private String category;
     private String name;
     private String img;
@@ -31,5 +31,4 @@ public class Operator {
     @Enumerated(EnumType.STRING)
     @Column(name = "service")
     private List<ServiceType> services;
-
 }

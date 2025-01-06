@@ -28,6 +28,11 @@ public class OperatorController {
         return operatorService.getOperatorById(id);
     }
 
+    @GetMapping("recharge/{id}")
+    public boolean rechargePhone(@PathVariable Long id,@RequestParam String number,@RequestParam String offer,@RequestParam double amount,@RequestParam Long clientId) {
+        return operatorService.rechargePhone(number,offer,amount,id,clientId);
+    }
+
 //    @PostMapping
 //    public Operator createOperator(@RequestBody Operator operator) {
 //        return operatorService.saveOperator(operator);

@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://web.operators_api.example.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="MarocTelecomWS" targetNamespace="http://web.operators_api.example.com/">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://web.operators_api.example.com/" elementFormDefault="unqualified" targetNamespace="http://web.operators_api.example.com/" version="1.0">
+
+  <xs:element name="recharge" type="tns:recharge"/>
+
+  <xs:element name="rechargeResponse" type="tns:rechargeResponse"/>
+
+  <xs:complexType name="recharge">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="collaboratorId" type="xs:long"/>
+      <xs:element minOccurs="0" name="phoneNumber" type="xs:string"/>
+      <xs:element name="amount" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="rechargeResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="recharge">
+    <wsdl:part element="tns:recharge" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="rechargeResponse">
+    <wsdl:part element="tns:rechargeResponse" name="parameters">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="MarocTelecomSoapService">
+    <wsdl:operation name="recharge">
+      <wsdl:input message="tns:recharge" name="recharge">
+    </wsdl:input>
+      <wsdl:output message="tns:rechargeResponse" name="rechargeResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="MarocTelecomWSSoapBinding" type="tns:MarocTelecomSoapService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="recharge">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="recharge">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="rechargeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="MarocTelecomWS">
+    <wsdl:port binding="tns:MarocTelecomWSSoapBinding" name="MarocTelecomSoapServicePort">
+      <soap:address location="http://localhost:8084/services/CustomerService"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

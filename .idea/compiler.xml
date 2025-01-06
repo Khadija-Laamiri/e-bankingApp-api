@@ -7,12 +7,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="operators-api" />
         <module name="securityuserservice" />
         <module name="discoveryserver" />
         <module name="user-service" />
         <module name="facture-service" />
       </profile>
-      <profile name="Annotation profile for service-payment-transaction" enabled="true">
+      <profile name="Annotation profile for operators-api" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -31,6 +32,7 @@
       <module name="Service-Payment-Transaction" options="-parameters" />
       <module name="discoveryserver" options="-parameters" />
       <module name="facture-service" options="-parameters" />
+      <module name="operators-api" options="-parameters" />
       <module name="securityuserservice" options="-parameters" />
       <module name="service-payment-transaction" options="-parameters" />
       <module name="user-service" options="-parameters" />
