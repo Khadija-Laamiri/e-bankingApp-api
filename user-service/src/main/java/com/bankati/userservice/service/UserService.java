@@ -386,4 +386,13 @@ public class UserService {
         return userRepository.findAgentsByAgenceId(agenceId);
     }
 
+
+
+    public boolean isUserActiveByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé avec l'email : " + email));
+        return user.isActive();
+    }
+
+
 }
