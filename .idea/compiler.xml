@@ -24,7 +24,6 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="api-gateway" target="21" />
       <module name="Service-Payment-Transaction" target="17" />
     </bytecodeTargetLevel>
   </component>
