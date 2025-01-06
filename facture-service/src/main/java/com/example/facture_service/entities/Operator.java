@@ -1,5 +1,6 @@
 package com.example.facture_service.entities;
 
+import com.example.facture_service.enums.ServiceType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,5 +25,11 @@ public class Operator {
     @CollectionTable(name = "operator_details", joinColumns = @JoinColumn(name = "operator_id"))
     @Column(name = "detail")
     private List<String> details;
+
+    @ElementCollection(targetClass = ServiceType.class)
+    @CollectionTable(name = "operator_services", joinColumns = @JoinColumn(name = "operator_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "service")
+    private List<ServiceType> services;
 
 }
