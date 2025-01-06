@@ -1,6 +1,7 @@
 package org.example.servicepaymenttransaction.Controllers;
 
 import org.example.servicepaymenttransaction.Models.Compte;
+import org.example.servicepaymenttransaction.Models.Hssab;
 import org.example.servicepaymenttransaction.Services.CompteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +21,18 @@ public class CompteController {
     // Endpoint pour créer un compte avec un solde initial
     @PostMapping("/creer")
     public ResponseEntity<Compte> creerCompte(@RequestParam Long userId,
-                                              @RequestParam BigDecimal soldeInitial) {
-        Compte compte = compteService.creerCompte(userId, soldeInitial);
+                                              @RequestParam BigDecimal soldeInitial,
+                                              @RequestParam(required = false, defaultValue = "HSSAB_200") String hssab) {
+        // Convertir le paramètre `hssab` en type Hssab
+        Hssab typeCompte;
+        try {
+            typeCompte = Hssab.valueOf(hssab.toUpperCase()); // Conversion en majuscules pour éviter les erreurs
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(null); // Si la valeur est invalide, retourner une erreur
+        }
+
+        // Créer le compte avec le type (hssab)
+        Compte compte = compteService.creerCompte(userId, soldeInitial, typeCompte);
         return ResponseEntity.ok(compte);
     }
 
