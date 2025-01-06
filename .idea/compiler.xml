@@ -10,21 +10,23 @@
         <module name="securityuserservice" />
         <module name="user-service" />
       </profile>
-      <profile name="Annotation profile for ServicePaymentTransaction" enabled="true">
+      <profile name="Annotation profile for service-payment-transaction" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
-        <module name="Service-Payment-Transaction" />
+        <module name="service-payment-transaction" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="Service-Payment-Transaction" options="-parameters" />
-      <module name="securityuserservice" options="-parameters" />
+      <module name="api-gateway" options="-parameters" />
+      <module name="discoveryserver" options="-parameters" />
+      <module name="facture-service" options="-parameters" />
+      <module name="service-payment-transaction" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
   </component>
