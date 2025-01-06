@@ -1,6 +1,7 @@
 package org.example.servicepaymenttransaction.Controllers;
 
 import org.example.servicepaymenttransaction.Models.Compte;
+import org.example.servicepaymenttransaction.Models.Hssab;
 import org.example.servicepaymenttransaction.Services.CompteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,6 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/comptes")
 public class CompteController {
-
     @Autowired
     private CompteService compteService;
 
@@ -21,6 +21,7 @@ public class CompteController {
     @PostMapping("/creer")
     public ResponseEntity<Compte> creerCompte(@RequestParam Long userId,
                                               @RequestParam BigDecimal soldeInitial) {
+
         Compte compte = compteService.creerCompte(userId, soldeInitial);
         return ResponseEntity.ok(compte);
     }
@@ -37,4 +38,5 @@ public class CompteController {
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
+
 }

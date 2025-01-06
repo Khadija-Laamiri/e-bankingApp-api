@@ -1,7 +1,9 @@
 package org.example.servicepaymenttransaction.Controllers;
 
 import org.example.servicepaymenttransaction.Feign.UserServiceClient;
+import org.example.servicepaymenttransaction.Models.Compte;
 import org.example.servicepaymenttransaction.Models.Transaction;
+import org.example.servicepaymenttransaction.Repositories.CompteRepository;
 import org.example.servicepaymenttransaction.Services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -63,11 +65,11 @@ public class PaymentController {
 // Endpoint pour lister les transactions par ID utilisateur
 
     // Endpoint pour lister les transactions par ID utilisateur
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
-        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
-        return ResponseEntity.ok(transactions);
-    }
+//    @GetMapping("/user/{userId}")
+//    public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
+//        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
+//        return ResponseEntity.ok(transactions);
+//    }
 
 //    @GetMapping("/user/{userId}")
 //    public ResponseEntity<List<Map<String, Object>>> listerTransactionsParUserId(@PathVariable Long userId) {
@@ -117,11 +119,13 @@ public class PaymentController {
         BigDecimal solde = paymentService.calculerSoldeParUserId(userId);
         return ResponseEntity.ok(solde);
     }
+
     @PostMapping("/user/{userId}/ajouter-solde")
     public ResponseEntity<BigDecimal> ajouterMontantAuSolde(@PathVariable Long userId, @RequestParam BigDecimal montant) {
         BigDecimal nouveauSolde = paymentService.ajouterMontantAuSolde(userId, montant);
         return ResponseEntity.ok(nouveauSolde);
     }
+
 
 
 //    @PostMapping("/transferer-par-telephone")
@@ -163,7 +167,39 @@ public ResponseEntity<Map<String, String>> transfererParTelephone(@RequestBody M
             return ResponseEntity.status(500).body(null);
         }
     }
+    @GetMapping("/user/current/transactions")
+    public ResponseEntity<List<Transaction>> listerTransactionsUtilisateurConnecte(@RequestHeader("userId") Long userId) {
+        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
+        return ResponseEntity.ok(transactions);
+    }
 
+    @GetMapping("/transactions/{userId}")
+    public ResponseEntity<List<Transaction>> listerTransactionsParUserId(@PathVariable Long userId) {
+        List<Transaction> transactions = paymentService.listerTransactionsParUserId(userId);
+        return ResponseEntity.ok(transactions);
+    }
 
+    @Autowired
+    private CompteRepository compteRepo;
+
+    @GetMapping("/user/current/phone")
+    public ResponseEntity<Map<String, String>> getCurrentUserPhone(@RequestHeader("userId") Long userId) {
+        System.out.println("userId reçu : " + userId); // Ajoutez ce log
+        try {
+            Compte compte = compteRepo.findByUserId(userId)
+                    .orElseThrow(() -> new RuntimeException("Compte introuvable pour l'utilisateur ID : " + userId));
+
+            System.out.println("Compte trouvé : " + compte); // Ajoutez ce log
+            Map<String, String> response = new HashMap<>();
+            response.put("telephone", compte.getTelephone());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la récupération du téléphone : " + e.getMessage()); // Ajoutez ce log
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
 }
+
 

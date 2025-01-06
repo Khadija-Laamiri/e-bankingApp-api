@@ -7,15 +7,16 @@ import java.math.BigDecimal;
 
 @Entity
 public class Compte {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long userId; // ID de l'utilisateur associé au compte
     private BigDecimal solde;
     @Column(unique = true)
     private String telephone; // Numéro de téléphone associé au compte
+
+    @Enumerated(EnumType.STRING) // Stocker les valeurs de l'énumération sous forme de chaîne
+    private Hssab hssab;
 
     // Getters et Setters
     public Long getId() { return id; }
@@ -29,4 +30,7 @@ public class Compte {
 
     public String getTelephone() { return telephone; }
     public void setTelephone(String telephone) { this.telephone = telephone; }
+
+    public Hssab getHssab() { return hssab; }
+    public void setHssab(Hssab hssab) { this.hssab = hssab; }
 }
