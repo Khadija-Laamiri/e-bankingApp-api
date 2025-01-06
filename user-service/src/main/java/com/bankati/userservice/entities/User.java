@@ -61,4 +61,5 @@ public class User {
     @JoinColumn(name = "agence_id") // Clé étrangère vers l'agence
     @JsonIgnore
     private Agence agence;
+
 }
