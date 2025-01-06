@@ -14,10 +14,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableDiscoveryClient
 @EnableFeignClients
 @EnableConfigurationProperties(RsakeysConfig.class)
-public class SecurityUserServiceApplication {
+public class UserServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SecurityUserServiceApplication.class, args);
+		SpringApplication.run(UserServiceApplication.class, args);
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		System.out.println(encoder.encode("admin"));
 		System.out.println(encoder.encode("agent"));
