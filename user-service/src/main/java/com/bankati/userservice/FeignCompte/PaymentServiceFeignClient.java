@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.math.BigDecimal;
 import java.util.List;
 
-@FeignClient(name = "payment-service", url = "http://localhost:8080")
+@FeignClient(name = "payment-service", url = "http://localhost:8085")
 public interface PaymentServiceFeignClient {
 
     // Méthodes pour le contrôleur de paiements
@@ -34,5 +34,7 @@ public interface PaymentServiceFeignClient {
     @PostMapping("/paiements/user/{userId}/ajouter-solde")
     ResponseEntity<BigDecimal> ajouterMontantAuSolde(@PathVariable("userId") Long userId,
                                                      @RequestParam BigDecimal montant);
+  
+
 }
 
