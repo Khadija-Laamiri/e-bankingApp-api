@@ -276,6 +276,10 @@ public class UserController {
         return ResponseEntity.ok(updatedAgent);
     }
 
+    @GetMapping("/clients/{userId}/cardholderId")
+    public String getCardholderId(@PathVariable Long userId) {
+        return userService.getCardHolderIdByUserId(userId);
+    }
 
 }
 
