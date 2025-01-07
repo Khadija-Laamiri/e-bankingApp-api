@@ -13,6 +13,7 @@
         <option value="$PROJECT_DIR$/../facture-service/pom.xml" />
         <option value="$PROJECT_DIR$/facture-service/pom.xml" />
         <option value="$PROJECT_DIR$/../operators-api/pom.xml" />
+        <option value="$PROJECT_DIR$/api-gateway/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

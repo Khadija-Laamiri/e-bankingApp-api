@@ -1,13 +1,14 @@
 
 package com.bankati.userservice.web;
 
-
 import com.bankati.userservice.Models.Transaction;
 import com.bankati.userservice.entities.Agence;
 import com.bankati.userservice.entities.User;
 import com.bankati.userservice.enums.Role;
 import com.bankati.userservice.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -127,15 +128,16 @@ public class UserController {
             @RequestParam(required = false) MultipartFile imageRecto,
             @RequestParam(required = false) MultipartFile imageVerso,
             @RequestParam Long agentId,
-            @RequestParam BigDecimal soldeInitial // Nouveau paramètre pour le solde initial
+            @RequestParam BigDecimal soldeInitial, // Nouveau paramètre pour le solde initial
+            HttpServletRequest request // Inject HttpServletRequest to get IP and User-Agent
     ) throws IOException {
+
+        // Pass the HttpServletRequest to the service layer
         User newUser = userService.addClient(nom, prenom, typePieceIdentite, numeroPieceIdentite, dateDeNaissance,
-                adresse, email, numeroTelephone, imageRecto, imageVerso, agentId, soldeInitial);
+                adresse, email, numeroTelephone, imageRecto, imageVerso, agentId, soldeInitial, request);
+
         return ResponseEntity.ok(newUser);
     }
-
-
-
 
     // Endpoint pour récupérer tous les clients
     @GetMapping("/clients")
@@ -256,6 +258,24 @@ public class UserController {
         }
         return ResponseEntity.ok(agents);
     }
+
+
+
+    @GetMapping("/email/{email}/isActive")
+    public ResponseEntity<Boolean> checkUserActiveByEmail(@PathVariable String email) {
+        boolean isActive = userService.isUserActiveByEmail(email);
+        return ResponseEntity.ok(isActive);
+    }
+
+    @PutMapping("/agent/{agentId}/update-agence")
+    public ResponseEntity<User> updateAgentAgence(
+            @PathVariable Long agentId,
+            @RequestParam Long newAgenceId) {
+        User updatedAgent = userService.updateAgentAgence(agentId, newAgenceId);
+        return ResponseEntity.ok(updatedAgent);
+    }
+
+
 }
 
 

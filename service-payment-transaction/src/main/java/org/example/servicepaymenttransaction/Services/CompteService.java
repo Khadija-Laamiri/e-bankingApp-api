@@ -1,6 +1,7 @@
 package org.example.servicepaymenttransaction.Services;
 
 import org.example.servicepaymenttransaction.Models.Compte;
+import org.example.servicepaymenttransaction.Models.Hssab;
 import org.example.servicepaymenttransaction.Repositories.CompteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,10 +25,23 @@ public class CompteService {
             throw new RuntimeException("L'utilisateur avec l'ID " + userId + " possède déjà un compte.");
         }
 
+        // Déterminer la valeur de `hssab` en fonction du soldeInitial
+        Hssab hssabType;
+        if (soldeInitial.compareTo(BigDecimal.valueOf(200)) == 0) {
+            hssabType = Hssab.HSSAB_200;
+        } else if (soldeInitial.compareTo(BigDecimal.valueOf(5000)) == 0) {
+            hssabType = Hssab.HSSAB_5000;
+        } else if (soldeInitial.compareTo(BigDecimal.valueOf(20000)) == 0) {
+            hssabType = Hssab.HSSAB_20000;
+        } else {
+            throw new RuntimeException("Le solde initial ne correspond à aucun type de compte valide.");
+        }
+
         // Créer un nouveau compte si l'utilisateur n'en a pas déjà un
         Compte compte = new Compte();
         compte.setUserId(userId);
         compte.setSolde(soldeInitial);
+        compte.setHssab(hssabType); // Définir le type de compte
 
         return compteRepo.save(compte);
     }

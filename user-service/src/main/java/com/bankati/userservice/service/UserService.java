@@ -8,11 +8,15 @@ import com.bankati.userservice.Models.Compte;
 import com.bankati.userservice.Models.Transaction;
 import com.bankati.userservice.entities.Agence;
 import com.bankati.userservice.web.SmsController;
+import com.stripe.Stripe;
+import com.stripe.model.issuing.Cardholder;
+import com.stripe.param.issuing.CardholderCreateParams;
 import jakarta.annotation.PostConstruct;
 import com.bankati.userservice.entities.User;
 import com.bankati.userservice.enums.Role;
 import com.bankati.userservice.enums.TypePieceIdentite;
 import com.bankati.userservice.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,6 +54,9 @@ public class UserService {
     private SmsController smsController;
     @Autowired
     private AgenceService agenceService;
+    @Autowired
+    private StripeService stripeService;
+
 
 
     // Déclarer le chemin d'upload comme un Path dynamique
@@ -222,6 +229,9 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("Client non trouvé avec l'ID : " + id));
 
         // Mettre à jour les champs
+
+        stripeService.updateCardholder(existingUser.getCardholder_id(),nom,prenom,email,numeroTelephone);
+
         existingUser.setNom(nom);
         existingUser.setPrenom(prenom);
         existingUser.setTypePieceIdentite(TypePieceIdentite.valueOf(typePieceIdentite));
@@ -256,7 +266,8 @@ public class UserService {
                           MultipartFile imageRecto,
                           MultipartFile imageVerso,
                           Long agentId,
-                          BigDecimal soldeInitial) throws IOException {
+                          BigDecimal soldeInitial,
+                          HttpServletRequest request) throws IOException {
 
         //BigDecimal soldeInitial= BigDecimal.valueOf(0.0);
         // Trouver l'agent qui ajoute ce client
@@ -268,6 +279,9 @@ public class UserService {
 
         // Générer un mot de passe aléatoire
         String generatedPassword = generateRandomPassword(8);
+
+        Cardholder cardholder = stripeService.createCardholder(nom,prenom,email,numeroTelephone,request.getHeader("X-Forwarded-For"),request.getHeader("User-Agent"));
+
 
         // Créer une instance de l'utilisateur (client)
         User user = new User();
@@ -284,7 +298,7 @@ public class UserService {
 
         // Assigner l'agent
         user.setAgent(agent);
-       
+        user.setCardholder_id(cardholder.getId());
             user.setAgence(agence);
 
 
@@ -385,5 +399,32 @@ public class UserService {
     public List<User> getAgentsByAgence(Long agenceId) {
         return userRepository.findAgentsByAgenceId(agenceId);
     }
+
+
+
+    public boolean isUserActiveByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé avec l'email : " + email));
+        return user.isActive();
+    }
+
+    @Transactional
+    public User updateAgentAgence(Long agentId, Long newAgenceId) {
+        // Vérifier si l'agent existe
+        User agent = userRepository.findByIdAndRole(agentId, Role.AGENT)
+                .orElseThrow(() -> new IllegalArgumentException("Agent non trouvé avec l'ID : " + agentId));
+
+        // Vérifier si la nouvelle agence existe
+        Agence newAgence = agenceService.getAgenceById(newAgenceId)
+                .orElseThrow(() -> new IllegalArgumentException("Agence non trouvée avec l'ID : " + newAgenceId));
+
+        // Mettre à jour l'agence de l'agent
+        agent.setAgence(newAgence);
+
+        // Sauvegarder les modifications
+        return userRepository.save(agent);
+    }
+
+
 
 }
