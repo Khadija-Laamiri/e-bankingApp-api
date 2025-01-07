@@ -19,7 +19,7 @@ pipeline {
             steps {
                 script {
                     dir('user-service') {
-                        bat "mvn clean install -DskipTests"
+                        sh "mvn clean install -DskipTests"
                     }
                 }
             }
