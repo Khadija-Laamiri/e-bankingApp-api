@@ -14,25 +14,15 @@ import java.math.BigDecimal;
 @RestController
 @RequestMapping("/comptes")
 public class CompteController {
-
     @Autowired
     private CompteService compteService;
 
     // Endpoint pour créer un compte avec un solde initial
     @PostMapping("/creer")
     public ResponseEntity<Compte> creerCompte(@RequestParam Long userId,
-                                              @RequestParam BigDecimal soldeInitial,
-                                              @RequestParam(required = false, defaultValue = "HSSAB_200") String hssab) {
-        // Convertir le paramètre `hssab` en type Hssab
-        Hssab typeCompte;
-        try {
-            typeCompte = Hssab.valueOf(hssab.toUpperCase()); // Conversion en majuscules pour éviter les erreurs
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(null); // Si la valeur est invalide, retourner une erreur
-        }
+                                              @RequestParam BigDecimal soldeInitial) {
 
-        // Créer le compte avec le type (hssab)
-        Compte compte = compteService.creerCompte(userId, soldeInitial, typeCompte);
+        Compte compte = compteService.creerCompte(userId, soldeInitial);
         return ResponseEntity.ok(compte);
     }
 
@@ -48,4 +38,5 @@ public class CompteController {
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
+
 }

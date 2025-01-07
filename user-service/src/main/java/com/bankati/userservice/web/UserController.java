@@ -1,7 +1,6 @@
 
 package com.bankati.userservice.web;
 
-
 import com.bankati.userservice.Models.Transaction;
 import com.bankati.userservice.entities.Agence;
 import com.bankati.userservice.entities.User;

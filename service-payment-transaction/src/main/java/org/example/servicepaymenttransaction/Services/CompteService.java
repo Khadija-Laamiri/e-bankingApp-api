@@ -18,25 +18,30 @@ public class CompteService {
     private CompteRepository compteRepo;
 
     // Créer un compte pour un utilisateur avec un solde initial
-    public Compte creerCompte(Long userId, BigDecimal soldeInitial,  Hssab hssab) {
+    public Compte creerCompte(Long userId, BigDecimal soldeInitial) {
         // Vérifier si un compte existe déjà pour cet utilisateur
         Optional<Compte> compteExistant = compteRepo.findByUserId(userId);
         if (compteExistant.isPresent()) {
             throw new RuntimeException("L'utilisateur avec l'ID " + userId + " possède déjà un compte.");
         }
 
+        // Déterminer la valeur de `hssab` en fonction du soldeInitial
+        Hssab hssabType;
+        if (soldeInitial.compareTo(BigDecimal.valueOf(200)) == 0) {
+            hssabType = Hssab.HSSAB_200;
+        } else if (soldeInitial.compareTo(BigDecimal.valueOf(5000)) == 0) {
+            hssabType = Hssab.HSSAB_5000;
+        } else if (soldeInitial.compareTo(BigDecimal.valueOf(20000)) == 0) {
+            hssabType = Hssab.HSSAB_20000;
+        } else {
+            throw new RuntimeException("Le solde initial ne correspond à aucun type de compte valide.");
+        }
+
         // Créer un nouveau compte si l'utilisateur n'en a pas déjà un
         Compte compte = new Compte();
         compte.setUserId(userId);
         compte.setSolde(soldeInitial);
-
-        // Définir le type de compte
-        if (hssab == null) {
-            // Si aucun type n'est fourni, définir une valeur par défaut
-            compte.setHssab(Hssab.HSSAB_200);
-        } else {
-            compte.setHssab(hssab);
-        }
+        compte.setHssab(hssabType); // Définir le type de compte
 
         return compteRepo.save(compte);
     }
