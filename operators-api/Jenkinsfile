@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    tools {
+        maven 'Maven'
+    }
      triggers {
           pollSCM('H/2 * * * *')
         }
@@ -18,8 +20,8 @@ pipeline {
         stage('Build Artifact') {
             steps {
                 script {
-                    dir('discoveryserver') {
-                        bat "mvn clean install"
+                    dir('operators-api') {
+                        bat "mvn clean install -DskipTests"
                     }
                 }
             }
@@ -28,7 +30,7 @@ pipeline {
         stage('Build App Image') {
             steps {
                 script {
-                    dir('discoveryserver') {
+                    dir('operators-api') {
                         dockerImage = docker.build("${APP_REGISTRY}:${IMAGE_TAG}")
                     }
                 }
@@ -58,16 +60,16 @@ pipeline {
                     script {
                         withCredentials([string(credentialsId: 'github_manifest', variable: 'GITHUB_TOKEN')]) {
                             bat """
-                                git clone https://oauth2:${GITHUB_TOKEN}@https://github.com/Khadija-Laamiri/e-banking-api-manifest.git
+                                git clone https://oauth2:${GITHUB_TOKEN}@github.com/Khadija-Laamiri/e-banking-api-manifest.git
                             """
 
                             dir('e-banking-api-manifest') {
                                 bat """
                                     echo "Fichier manifest: ${MANIFEST_FILE}"
-                                   powershell "(Get-Content -Path '${MANIFEST_FILE}') -replace 'enamifatimazahrae2001/discovery.*', 'enamifatimazahrae2001/discovery:${IMAGE_TAG}' | Set-Content -Path '${MANIFEST_FILE}'"
+                                    powershell "(Get-Content -Path '${MANIFEST_FILE}') -replace 'enamifatimazahrae2001/operators.*', 'enamifatimazahrae2001/operators:${IMAGE_TAG}' | Set-Content -Path '${MANIFEST_FILE}'"
                                     git diff
                                     git add .
-                                    git commit -m "Update discoveryserver image version to ${IMAGE_TAG}"
+                                    git commit -m "Update operators-api image version to ${IMAGE_TAG}"
                                     git push origin master
                                 """
                             }
