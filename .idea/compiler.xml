@@ -7,14 +7,20 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="service-payment-transaction" />
+        <module name="operators-api" />
         <module name="discoveryserver" />
         <module name="user-service" />
+        <module name="service-payment-transaction" />
+        <module name="facture-service" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="discoveryserver" options="-parameters" />
+      <module name="facture-service" options="-parameters" />
+      <module name="operators-api" options="-parameters" />
+      <module name="service-payment-transaction" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
   </component>
