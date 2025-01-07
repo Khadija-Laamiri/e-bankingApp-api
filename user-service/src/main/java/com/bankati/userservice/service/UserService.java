@@ -230,7 +230,7 @@ public class UserService {
 
         // Mettre à jour les champs
 
-        stripeService.updateCardholder(existingUser.getCardholder_id(),nom,prenom,email,numeroTelephone);
+        stripeService.updateCardholder(existingUser.getCardholder_id(),nom,prenom,email);
 
         existingUser.setNom(nom);
         existingUser.setPrenom(prenom);
@@ -280,7 +280,7 @@ public class UserService {
         // Générer un mot de passe aléatoire
         String generatedPassword = generateRandomPassword(8);
 
-        Cardholder cardholder = stripeService.createCardholder(nom,prenom,email,numeroTelephone,request.getHeader("X-Forwarded-For"),request.getHeader("User-Agent"));
+        Cardholder cardholder = stripeService.createCardholder(nom,prenom,email,request.getHeader("X-Forwarded-For"),request.getHeader("User-Agent"));
 
 
         // Créer une instance de l'utilisateur (client)
@@ -426,5 +426,8 @@ public class UserService {
     }
 
 
+    public String getCardHolderIdByUserId(Long userId){
+        return userRepository.findCardholderIdByUserId(userId);
+    }
 
 }
