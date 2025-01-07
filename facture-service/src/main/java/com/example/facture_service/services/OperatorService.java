@@ -1,6 +1,8 @@
 package com.example.facture_service.services;
 
+import com.example.facture_service.dtos.TransactionDTO;
 import com.example.facture_service.entities.Operator;
+import com.example.facture_service.enums.TransactionType;
 import com.example.facture_service.repositories.OperatorRepository;
 import com.example.operators_api.web.MarocTelecomSoapService;
 import org.springframework.http.HttpMethod;
@@ -41,7 +43,7 @@ public class OperatorService {
             ResponseEntity<BigDecimal> responseEntity = restTemplate.getForEntity(soldeUrl, BigDecimal.class);
 
             BigDecimal userBalance = responseEntity.getBody();
-            BigDecimal totalCost = BigDecimal.valueOf(amount); // Apply 2% discount
+            BigDecimal totalCost = BigDecimal.valueOf(amount);
 
             // Step 2: Check if the balance is sufficient
             if (userBalance == null || userBalance.compareTo(totalCost) < 0) {
@@ -57,14 +59,30 @@ public class OperatorService {
             }
 
             // Step 4: Call the recharge method of the SOAP service
-            String response = marocTelecomSoapService.recharge(1L, number, amount);
+            String response = marocTelecomSoapService.recharge(operatorId, number, amount);
 
-            // Step 5: Return the response directly
             if (response.contains("successful")) {
                 System.out.println("Recharge successful: " + response);
+
+                // Step 5: Save the transaction
+                TransactionDTO transactionDTO = new TransactionDTO();
+                transactionDTO.setMontant(totalCost);
+                transactionDTO.setDescription("Recharge mobile");
+                transactionDTO.setSourceUserId(clientId);
+                transactionDTO.setTransactionType(TransactionType.RECHARGE);
+
+                String transactionUrl = "http://localhost:8085/transactions/save";
+                ResponseEntity<TransactionDTO> transactionResponse = restTemplate.postForEntity(transactionUrl, transactionDTO, TransactionDTO.class);
+
+                if (transactionResponse.getStatusCode() == HttpStatus.OK) {
+                    System.out.println("Transaction saved successfully: " + transactionResponse.getBody());
+                } else {
+                    System.out.println("Failed to save transaction.");
+                }
             } else {
                 System.out.println("Recharge failed: " + response);
             }
+
             return response;
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,6 +91,7 @@ public class OperatorService {
             return errorMessage;
         }
     }
+
 
 
 
