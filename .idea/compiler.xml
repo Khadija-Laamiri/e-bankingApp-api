@@ -7,9 +7,17 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+<<<<<<< HEAD
+=======
+        <module name="api-gateway" />
+        <module name="operators-api" />
+        <module name="discoveryserver" />
+        <module name="user-service" />
+>>>>>>> origin/master
         <module name="facture-service" />
       </profile>
     </annotationProcessing>
+<<<<<<< HEAD
     <bytecodeTargetLevel>
       <module name="api-gateway" target="21" />
       <module name="discoveryserver" target="21" />
@@ -17,12 +25,15 @@
       <module name="service-payment-transaction" target="21" />
       <module name="user-service" target="21" />
     </bytecodeTargetLevel>
+=======
+>>>>>>> origin/master
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateway" options="-parameters" />
       <module name="discoveryserver" options="-parameters" />
       <module name="facture-service" options="-parameters" />
+      <module name="operators-api" options="-parameters" />
       <module name="service-payment-transaction" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
