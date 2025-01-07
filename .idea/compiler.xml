@@ -8,32 +8,20 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="api-gateway" />
+        <module name="discoveryserver" />
         <module name="user-service" />
+        <module name="service-payment-transaction" />
         <module name="facture-service" />
       </profile>
-      <profile name="Annotation profile for service-payment-transaction" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
-        </processorPath>
-        <module name="service-payment-transaction" />
-      </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="api-gateway" target="21" />
-      <module name="discoveryserver" target="21" />
-      <module name="service-payment-transaction" target="21" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateway" options="-parameters" />
-      <module name="discoveryserver" options="-parameters" />
+      <module name="discoveryserver" options="" />
       <module name="facture-service" options="-parameters" />
-      <module name="service-payment-transaction" options="-parameters" />
-      <module name="user-service" options="-parameters" />
+      <module name="service-payment-transaction" options="" />
+      <module name="user-service" options="" />
     </option>
   </component>
 </project>
