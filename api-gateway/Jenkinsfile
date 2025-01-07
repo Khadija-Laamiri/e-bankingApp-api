@@ -17,6 +17,14 @@ pipeline {
 
 
     stages {
+
+      stage('Check Docker Availability') {
+                  steps {
+                      script {
+                          sh 'which docker || (echo "Docker is not installed or accessible" && exit 1)'
+                      }
+                  }
+              }
         stage('Build Artifact') {
                     steps {
                         script {
