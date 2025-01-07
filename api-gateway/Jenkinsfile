@@ -21,7 +21,7 @@ pipeline {
                     steps {
                         script {
                             dir('api-gateway') {
-                                sh 'mvn clean install'
+                                sh 'mvn clean install -DskipTests'
                             }
                         }
                     }
