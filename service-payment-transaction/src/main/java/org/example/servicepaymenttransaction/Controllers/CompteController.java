@@ -42,10 +42,10 @@ public class CompteController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<Compte> getCompteByUserId(@PathVariable Long userId) {
-        Optional<Compte> compte = compteService.getCompteByUserId(userId);
-        return compte.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public Compte getCompteByUserId(@PathVariable Long userId) {
+        Compte compte = compteService.getCompteByUserId(userId);
+        System.out.println(compte.toString());
+        return  compte;
     }
 
     @PostMapping("/add-virtual-card")

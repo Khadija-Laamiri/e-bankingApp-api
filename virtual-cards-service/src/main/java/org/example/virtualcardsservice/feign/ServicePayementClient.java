@@ -1,7 +1,6 @@
 package org.example.virtualcardsservice.feign;
 
 
-import org.example.servicepaymenttransaction.Services.UserServiceFallback;
 import org.example.virtualcardsservice.dtos.Compte;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -12,19 +11,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
 
-@FeignClient(name = "ServicePaymentTransaction", url = "http://localhost:8080/comptes", fallback = UserServiceFallback.class)
+@FeignClient(name = "ServicePaymentTransaction", url = "http://localhost:8085/")
 public interface ServicePayementClient {
 
-    @PostMapping("/add-virtual-card")
+    @PostMapping("/comptes/add-virtual-card")
     public ResponseEntity<String> addVirtualCardByUserId(
             @RequestParam Long userId,
             @RequestParam String newCard);
 
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/comptes/user/{userId}")
     public ResponseEntity<Compte> getCompteByUserId(@PathVariable Long userId);
 
-    @PostMapping("/{compteId}/toCard")
+    @PostMapping("/paiements/{compteId}/toCard")
     public ResponseEntity<String> transferToCard(@PathVariable Long compteId, @RequestParam BigDecimal montant) ;
 
 

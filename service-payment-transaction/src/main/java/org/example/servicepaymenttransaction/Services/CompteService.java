@@ -69,8 +69,8 @@ public class CompteService {
         return compteRepo.save(compte);
     }
 
-    public Optional<Compte> getCompteByUserId(Long userId){
-        return compteRepo.findByUserId(userId);
+    public Compte getCompteByUserId(Long userId){
+        return compteRepo.findByUserId(userId).orElseThrow();
     }
 
     public Optional<BigDecimal> getSoldeByUserId(Long userId) {
