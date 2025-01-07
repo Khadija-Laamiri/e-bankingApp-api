@@ -29,7 +29,7 @@ public class OperatorController {
     }
 
     @GetMapping("recharge/{id}")
-    public boolean rechargePhone(@PathVariable Long id,@RequestParam String number,@RequestParam String offer,@RequestParam double amount,@RequestParam Long clientId) {
+    public String rechargePhone(@PathVariable Long id,@RequestParam String number,@RequestParam String offer,@RequestParam double amount,@RequestParam Long clientId) {
         return operatorService.rechargePhone(number,offer,amount,id,clientId);
     }
 

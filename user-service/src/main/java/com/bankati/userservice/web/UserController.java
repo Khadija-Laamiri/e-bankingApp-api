@@ -280,6 +280,12 @@ public class UserController {
         return userService.getCardHolderIdByUserId(userId);
     }
 
+    @GetMapping("/is-active-by-telephone")
+    public ResponseEntity<Boolean> isUserActiveByNumeroTelephone(@RequestParam String numeroTelephone) {
+        boolean isActive = userService.isUserActiveByNumeroTelephone(numeroTelephone);
+        return ResponseEntity.ok(isActive);
+    }
+
 }
 
 

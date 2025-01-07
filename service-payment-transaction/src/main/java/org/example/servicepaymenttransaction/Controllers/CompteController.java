@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 
 @RestController
@@ -37,5 +38,28 @@ public class CompteController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @GetMapping("/solde/{userId}")
+    public ResponseEntity<BigDecimal> getSoldeByUserId(@PathVariable Long userId) {
+        Optional<BigDecimal> solde = compteService.getSoldeByUserId(userId);
+        return solde.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/debit/{userId}")
+    public ResponseEntity<String> debitCompte(@PathVariable Long userId, @RequestParam BigDecimal amount) {
+        try {
+            boolean success = compteService.debitCompte(userId, amount);
+            if (success) {
+                return ResponseEntity.ok("Amount debited successfully: " + amount + " MAD");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Insufficient balance for debit operation.");
+            }
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error during debit operation: " + ex.getMessage());
+        }
     }
 }

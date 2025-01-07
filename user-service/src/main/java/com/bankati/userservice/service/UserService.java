@@ -408,6 +408,12 @@ public class UserService {
         return user.isActive();
     }
 
+    public boolean isUserActiveByNumeroTelephone(String numeroTelephone) {
+        User user = userRepository.findByNumeroTelephone(numeroTelephone)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé avec le numéro de téléphone : " + numeroTelephone));
+        return user.isActive();
+    }
+
     @Transactional
     public User updateAgentAgence(Long agentId, Long newAgenceId) {
         // Vérifier si l'agent existe

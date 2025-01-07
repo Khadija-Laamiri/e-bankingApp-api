@@ -53,4 +53,31 @@ public class CompteService {
 
         compteRepo.delete(compte);
     }
+
+    public Optional<BigDecimal> getSoldeByUserId(Long userId) {
+        Optional<Compte> compte = compteRepo.findByUserId(userId);
+        return compte.map(Compte::getSolde); // Return solde if present, otherwise empty
+    }
+
+    public boolean debitCompte(Long userId, BigDecimal amount) {
+        // Retrieve the account by userId
+        Optional<Compte> optionalCompte = compteRepo.findByUserId(userId);
+        if (optionalCompte.isPresent()) {
+            Compte compte = optionalCompte.get();
+            BigDecimal currentBalance = compte.getSolde();
+
+            // Check if the balance is sufficient
+            if (currentBalance.compareTo(amount) >= 0) {
+                // Subtract the amount and save the updated account
+                compte.setSolde(currentBalance.subtract(amount));
+                compteRepo.save(compte);
+                return true;
+            } else {
+                // Insufficient balance
+                return false;
+            }
+        } else {
+            throw new RuntimeException("Compte not found for userId: " + userId);
+        }
+    }
 }
