@@ -14,6 +14,8 @@ import org.example.virtualcardsservice.entities.CardTransaction;
 import org.example.virtualcardsservice.feign.ServicePayementClient;
 import org.example.virtualcardsservice.feign.UserServiceClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,6 +29,8 @@ public class StripeService {
     private final UserServiceClient userServiceClient;
     private final ServicePayementClient servicePayementClient;
     private final CardTransactionService cardTransactionService;
+    private static final String BASE_URL = "http://localhost:8085";
+
 
     // Inject API key from application.properties or application.yml
     @Value("${stripe.api.key}")
@@ -43,17 +47,18 @@ public class StripeService {
     public CardDTO createCard(Long userId, String currency, Map<String, String> metadata) {
         // Set the Stripe API key
         Stripe.apiKey = stripeApiKey;
-        System.out.println(userId);
+        System.out.println("User ID: " + userId);
 
+        // Fetch cardholder ID using the user service
         String cardholderId = userServiceClient.getCardholderIdByUserId(userId);
-        System.out.println(cardholderId);
-        // Fetch the Compte associated with the user
-        Compte compte = servicePayementClient.getCompteByUserId(userId).getBody();
-        System.out.println(compte);
+        System.out.println("Cardholder ID: " + cardholderId);
 
-        if (compte == null) {
-            throw new RuntimeException("Compte not found for userId: " + userId);
-        }
+        // Fetch the Compte associated with the user using RestTemplate
+        String url = BASE_URL + "/comptes/user/" + userId; // Construct the endpoint URL
+        Compte compte = restTemplate.getForObject(url, Compte.class); // Fetch the Compte object
+        System.out.println(compte.getHssab());
+
+        System.out.println("Compte: " + compte);
 
         // Check the user's Hssab type and the number of existing virtual cards
         Hssab hssab = compte.getHssab();
@@ -64,19 +69,23 @@ public class StripeService {
             case HSSAB_20000 -> 5;
             default -> throw new RuntimeException("Unknown Hssab type for userId: " + userId);
         };
-        System.out.println(virtualCards);
+        System.out.println("Virtual Cards: " + virtualCards);
+
         // Convert solde from metadata to BigDecimal
         BigDecimal solde = new BigDecimal(metadata.get("solde"));
 
         // Perform the transfer with the BigDecimal amount
-        servicePayementClient.transferToCard(userId, solde);
+        String debitUrl = "http://localhost:8085/comptes/debit/" + userId + "?amount=" + solde;
+        ResponseEntity<String> debitResponse = restTemplate.exchange(debitUrl, HttpMethod.PUT, null, String.class);
+
+        System.out.println(debitResponse.getBody());
 
         if (virtualCards != null && virtualCards.size() >= maxCardsAllowed) {
             throw new RuntimeException("Maximum number of virtual cards reached for userId: " + userId);
         }
 
-        // Proceed to create the card if the user has not exceeded the limit
 
+        // Proceed to create the card if the user has not exceeded the limit
         try {
             CardCreateParams params = CardCreateParams.builder()
                     .setCardholder(cardholderId)
@@ -87,17 +96,17 @@ public class StripeService {
                     .build();
 
             Card card = Card.create(params);
-            CardDTO cardDTO=CardDTO.convertToDTO(card);
+            CardDTO cardDTO = CardDTO.convertToDTO(card);
 
             // Create and save the card transaction
             CardTransaction cardTransaction = new CardTransaction();
-            cardTransaction.setAmount(solde); // Use BigDecimal solde
+            cardTransaction.setAmount(solde);
             cardTransaction.setCardId(cardDTO.getId());
-
             cardTransactionService.add(cardTransaction);
 
             // Add the generated card to the user's Compte
-            servicePayementClient.addVirtualCardByUserId(userId, cardDTO.getId());
+            String addCardUrl = BASE_URL + "/comptes/add-virtual-card?userId=" + userId + "&newCard=" + cardDTO.getId();
+            restTemplate.postForEntity(addCardUrl, null, String.class);
 
             return cardDTO;
         } catch (StripeException e) {
@@ -106,6 +115,7 @@ public class StripeService {
             throw new RuntimeException("Unexpected error creating card", e);
         }
     }
+
 
 
 
