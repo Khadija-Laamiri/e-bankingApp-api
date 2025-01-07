@@ -9,11 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 
 @RestController
 @RequestMapping("/comptes")
 public class CompteController {
+
     @Autowired
     private CompteService compteService;
 
@@ -39,4 +41,31 @@ public class CompteController {
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Compte> getCompteByUserId(@PathVariable Long userId) {
+        Optional<Compte> compte = compteService.getCompteByUserId(userId);
+        return compte.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/add-virtual-card")
+    public ResponseEntity<String> addVirtualCardByUserId(
+            @RequestParam Long userId,
+            @RequestParam String newCard) {
+        Compte updatedCompte = compteService.addVirtualCard(userId, newCard);
+        return ResponseEntity.ok("success");
+    }
+
+
 }
+
+
+
+
+
+
+
+
+
+
+

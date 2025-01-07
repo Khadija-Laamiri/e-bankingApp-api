@@ -1,4 +1,6 @@
-package org.example.servicepaymenttransaction.Config;
+package org.example.virtualcardsservice.Config;
+
+
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,10 @@ public class WebConfig {
         };
     }
 
+    @Bean
+    RestTemplate getRestTemplate() {
+        return new RestTemplate();
+    }
 
 
 }

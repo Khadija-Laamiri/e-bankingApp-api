@@ -53,6 +53,13 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.transfererArgent(sourceId, destinationId, montant));
     }
 
+
+    @PostMapping("/{compteId}/toCard")
+    public ResponseEntity<String> transferToCard(@PathVariable Long compteId, @RequestParam BigDecimal montant) {
+        paymentService.effectuerPaiement(compteId, montant, "transfer vers carte virtuelle");
+        return ResponseEntity.ok("sold transferred to card");
+    }
+
 //    @GetMapping("/{compteId}/solde")
 //    public ResponseEntity<BigDecimal> consulterSolde(@PathVariable Long compteId) {
 //        return ResponseEntity.ok(paymentService.consulterSolde(compteId));

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -53,4 +54,53 @@ public class CompteService {
 
         compteRepo.delete(compte);
     }
+
+    public Compte addVirtualCard(Long userId, String newCard) {
+        // Rechercher le compte par ID
+        Compte compte = compteRepo.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Compte non trouvé avec l'ID : " + userId));
+
+        // Ajouter la nouvelle carte à la liste existante
+        List<String> virtualCards = compte.getVirtual_cards();
+        virtualCards.add(newCard);
+        compte.setVirtual_cards(virtualCards);
+
+        // Enregistrer les modifications dans la base de données
+        return compteRepo.save(compte);
+    }
+
+    public Optional<Compte> getCompteByUserId(Long userId){
+        return compteRepo.findByUserId(userId);
+    }
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
