@@ -48,7 +48,7 @@ public class CompteController {
         return  compte;
     }
 
-    @PostMapping("/add-virtual-card")
+    @PutMapping("/add-virtual-card")
     public ResponseEntity<String> addVirtualCardByUserId(
             @RequestParam Long userId,
             @RequestParam String newCard) {
@@ -56,7 +56,21 @@ public class CompteController {
         return ResponseEntity.ok("success");
     }
 
-
+    @PutMapping("/debit/{userId}")
+    public ResponseEntity<String> debitCompte(@PathVariable Long userId, @RequestParam BigDecimal amount) {
+        try {
+            boolean success = compteService.debitCompte(userId, amount);
+            if (success) {
+                return ResponseEntity.ok("Amount debited successfully: " + amount + " MAD");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Insufficient balance for debit operation.");
+            }
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error during debit operation: " + ex.getMessage());
+        }
+    }
 }
 
 

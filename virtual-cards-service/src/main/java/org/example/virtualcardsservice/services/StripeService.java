@@ -14,6 +14,8 @@ import org.example.virtualcardsservice.entities.CardTransaction;
 import org.example.virtualcardsservice.feign.ServicePayementClient;
 import org.example.virtualcardsservice.feign.UserServiceClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -73,8 +75,10 @@ public class StripeService {
         BigDecimal solde = new BigDecimal(metadata.get("solde"));
 
         // Perform the transfer with the BigDecimal amount
-        String transferUrl = BASE_URL + "/paiements/" + compte.getId() + "/toCard?montant=" + solde;
-        restTemplate.postForEntity(transferUrl, null, String.class);
+        String debitUrl = "http://localhost:8085/comptes/debit/" + userId + "?amount=" + solde;
+        ResponseEntity<String> debitResponse = restTemplate.exchange(debitUrl, HttpMethod.PUT, null, String.class);
+
+        System.out.println(debitResponse.getBody());
 
         if (virtualCards != null && virtualCards.size() >= maxCardsAllowed) {
             throw new RuntimeException("Maximum number of virtual cards reached for userId: " + userId);

@@ -5,6 +5,7 @@ import org.example.servicepaymenttransaction.Models.Hssab;
 import org.example.servicepaymenttransaction.Repositories.CompteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
 
@@ -55,7 +56,7 @@ public class CompteService {
         compteRepo.delete(compte);
     }
 
-    public Compte addVirtualCard(Long userId, String newCard) {
+    public Compte addVirtualCard(@RequestParam Long userId,@RequestParam String newCard) {
         // Rechercher le compte par ID
         Compte compte = compteRepo.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Compte non trouvé avec l'ID : " + userId));
