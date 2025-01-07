@@ -230,7 +230,7 @@ public class UserService {
 
         // Mettre à jour les champs
 
-        stripeService.updateCardholder(existingUser.getCardholder_id(),nom,prenom,email,numeroTelephone);
+        stripeService.updateCardholder(existingUser.getCardholder_id(),nom,prenom,email);
 
         existingUser.setNom(nom);
         existingUser.setPrenom(prenom);
@@ -266,8 +266,8 @@ public class UserService {
                           MultipartFile imageRecto,
                           MultipartFile imageVerso,
                           Long agentId,
-                          BigDecimal soldeInitial
-                         // HttpServletRequest request
+                          BigDecimal soldeInitial,
+                          HttpServletRequest request
     ) throws IOException {
 
         //BigDecimal soldeInitial= BigDecimal.valueOf(0.0);
@@ -281,7 +281,7 @@ public class UserService {
         // Générer un mot de passe aléatoire
         String generatedPassword = generateRandomPassword(8);
 
-       // Cardholder cardholder = stripeService.createCardholder(nom,prenom,email,numeroTelephone,request.getHeader("X-Forwarded-For"),request.getHeader("User-Agent"));
+        Cardholder cardholder = stripeService.createCardholder(nom,prenom,email,request.getHeader("X-Forwarded-For"),request.getHeader("User-Agent"));
 
 
         // Créer une instance de l'utilisateur (client)
@@ -299,7 +299,7 @@ public class UserService {
 
         // Assigner l'agent
         user.setAgent(agent);
-      //  user.setCardholder_id(cardholder.getId());
+        user.setCardholder_id(cardholder.getId());
             user.setAgence(agence);
 
 

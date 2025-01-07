@@ -128,13 +128,13 @@ public class UserController {
             @RequestParam(required = false) MultipartFile imageRecto,
             @RequestParam(required = false) MultipartFile imageVerso,
             @RequestParam Long agentId,
-            @RequestParam BigDecimal soldeInitial // Nouveau paramètre pour le solde initial
-           // HttpServletRequest request // Inject HttpServletRequest to get IP and User-Agent
+            @RequestParam BigDecimal soldeInitial, // Nouveau paramètre pour le solde initial
+            HttpServletRequest request // Inject HttpServletRequest to get IP and User-Agent
     ) throws IOException {
 
         // Pass the HttpServletRequest to the service layer
         User newUser = userService.addClient(nom, prenom, typePieceIdentite, numeroPieceIdentite, dateDeNaissance,
-                adresse, email, numeroTelephone, imageRecto, imageVerso, agentId, soldeInitial);
+                adresse, email, numeroTelephone, imageRecto, imageVerso, agentId, soldeInitial, request);
 
         return ResponseEntity.ok(newUser);
     }

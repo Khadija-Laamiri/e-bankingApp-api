@@ -16,7 +16,7 @@ public class StripeService {
     @Value("${stripe.api.key}")
     private String stripeApiKey;
 
-    public Cardholder createCardholder(String nom, String prenom, String email, String numeroTelephone, String userIp, String userAgent) {
+    public Cardholder createCardholder(String nom, String prenom, String email, String userIp, String userAgent) {
         // Set the Stripe API key
         Stripe.apiKey = stripeApiKey;
 
@@ -34,7 +34,6 @@ public class StripeService {
                     .setType(CardholderCreateParams.Type.INDIVIDUAL) // Cardholder type
                     .setName(nom + " " + prenom)
                     .setEmail(email)
-                    .setPhoneNumber(numeroTelephone)
                     .setBilling(
                             CardholderCreateParams.Billing.builder()
                                     .setAddress(
@@ -76,7 +75,7 @@ public class StripeService {
     }
 
 
-    public Cardholder updateCardholder(String cardholderId, String nom, String prenom, String email, String numeroTelephone) {
+    public Cardholder updateCardholder(String cardholderId, String nom, String prenom, String email) {
         // Set the Stripe API key
         Stripe.apiKey = stripeApiKey;
 
@@ -90,7 +89,6 @@ public class StripeService {
                                     .build()
                     )
                     .setEmail(email)  // Update email
-                    .setPhoneNumber(numeroTelephone)  // Update phone number
                     .build();
 
             // Retrieve and update the cardholder using Stripe API
@@ -99,6 +97,5 @@ public class StripeService {
             throw new RuntimeException("Error updating cardholder", e);
         }
     }
-
 
 }
